@@ -1,0 +1,56 @@
+`timescale 1ns/1ps
+
+module RegFileTest;
+    reg clk;
+    reg rst;
+    reg[4:0] addr1;
+    reg[4:0] addr2;
+    reg[4:0] addr3;
+    reg[31:0] din;
+    reg regWrite;
+    wire[31:0] dout1;
+    wire[31:0] dout2;
+
+    RegFile U1
+    (
+        .clk(clk),
+        .rst(rst),
+        .addr1(addr1),
+        .addr2(addr2),
+        .addr3(addr3),
+        .din(din),
+        .regWrite(regWrite),
+        .dout1(dout1),
+        .dout2(dout2)
+    );
+
+    initial
+    begin
+        clk = 1;
+
+        rst = 1'b1;
+        #100
+        rst = 1'b0;
+        
+        regWrite = 1'b1;
+        addr3 = 0;
+        din = 32'h1234_5678;
+        
+        #100
+        regWrite = 1'b1;
+        addr3 = 1;
+        din = 32'h1111_1111;
+
+        #100;
+        regWrite = 1'b0;
+        addr1 = 0;
+        addr2 = 1;
+    end
+    
+    always
+    begin
+        #10
+        clk = ~clk;
+    end
+
+endmodule
