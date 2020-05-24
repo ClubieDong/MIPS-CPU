@@ -1,15 +1,15 @@
 `timescale 1ns/1ps
 
 module RegFileTest;
-    reg clk;
-    reg rst;
-    reg[4:0] addr1;
-    reg[4:0] addr2;
-    reg[4:0] addr3;
-    reg[31:0] din;
-    reg regWrite;
-    wire[31:0] dout1;
-    wire[31:0] dout2;
+    reg           clk;
+    reg           rst;
+    reg    [ 4:0] addr1;
+    reg    [ 4:0] addr2;
+    reg    [ 4:0] addr3;
+    reg    [31:0] din;
+    reg           regWrite;
+    wire   [31:0] dout1;
+    wire   [31:0] dout2;
 
     RegFile U1
     (
@@ -27,24 +27,32 @@ module RegFileTest;
     initial
     begin
         clk = 1;
-
         rst = 1'b1;
         #100
         rst = 1'b0;
         
-        regWrite = 1'b1;
+        #100
         addr3 = 0;
         din = 32'h1234_5678;
+        regWrite = 1'b1;
         
         #100
-        regWrite = 1'b1;
         addr3 = 1;
         din = 32'h1111_1111;
+        regWrite = 1'b1;
 
         #100;
-        regWrite = 1'b0;
         addr1 = 0;
         addr2 = 1;
+        regWrite = 1'b0;
+        // expect: 32'h0000_0000 32'h1111_1111
+
+        #100
+        addr1 = 2;
+        addr3 = 2;
+        din = 32'h2222_2222;
+        regWrite = 1;
+        // expect: 32'h2222_2222
     end
     
     always
