@@ -38,7 +38,7 @@ module DataMemory(
         if (rst)
             for (i = 0; i < 8192; i = i + 1)
                 regs[i] <= 32'bX;
-        if (memWrite)
+        else if (memWrite)
             case (memSize)
                 2'b00:                                                     regs[_addr]  <= din[ 7:0];
                 2'b01: {                                  regs[_addr + 1], regs[_addr]} <= din[15:0];

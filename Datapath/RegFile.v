@@ -20,7 +20,7 @@ module RegFile(
             for (i = 1; i < 32; i = i + 1)
                 regs[i] <= 32'bX;
         end
-        if (regWrite && addr3 != 0)
+        else if (regWrite && addr3 != 0)
             regs[addr3] <= din;
     end
 
