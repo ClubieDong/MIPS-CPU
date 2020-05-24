@@ -28,9 +28,9 @@ module DataMemory(
     assign halfWordEx = memSign ? {{16{halfWord[15]}}, halfWord} : {24'b0, halfWord};
 
     assign dout = !memRead ? 32'bX :
-         (memSize == 2'b01 ? byteEx     :
-          memSize == 2'b10 ? halfWordEx :
-          memSize == 2'b11 ? word       :
+         (memSize == 2'b00 ? byteEx     :
+          memSize == 2'b01 ? halfWordEx :
+          memSize == 2'b10 ? word       :
                              32'bX);
     
     always @ (posedge clk)
@@ -40,9 +40,9 @@ module DataMemory(
                 regs[i] <= 32'bX;
         if (memWrite)
             case (memSize)
-                2'b01:                                                     regs[_addr]  <= din[ 7:0];
-                2'b10: {                                  regs[_addr + 1], regs[_addr]} <= din[15:0];
-                2'b11: {regs[_addr + 3], regs[_addr + 2], regs[_addr + 1], regs[_addr]} <= din      ;
+                2'b00:                                                     regs[_addr]  <= din[ 7:0];
+                2'b01: {                                  regs[_addr + 1], regs[_addr]} <= din[15:0];
+                2'b10: {regs[_addr + 3], regs[_addr + 2], regs[_addr + 1], regs[_addr]} <= din      ;
             endcase
     end
 

@@ -37,7 +37,7 @@ module DataMemoryTest;
         din = 32'h1234_5678;
         memWrite = 1'b1;
         memRead = 1'b0;
-        memSize = 2'b11;
+        memSize = 2'b10;
         memSign = 1'bX;
 
         #100
@@ -46,7 +46,7 @@ module DataMemoryTest;
         din = 32'h1234_5678;
         memWrite = 1'b1;
         memRead = 1'b0;
-        memSize = 2'b10;
+        memSize = 2'b01;
         memSign = 1'bX;
 
         #100
@@ -55,7 +55,7 @@ module DataMemoryTest;
         din = 32'hFFFF_FFFF;
         memWrite = 1'b1;
         memRead = 1'b0;
-        memSize = 2'b01;
+        memSize = 2'b00;
         memSign = 1'bX;
 
         #100
@@ -63,7 +63,7 @@ module DataMemoryTest;
         addr = 32'h0000_0003;
         memWrite = 1'b0;
         memRead = 1'b1;
-        memSize = 2'b11;
+        memSize = 2'b10;
         memSign = 1'bX;
         // expected: 32'hFF56_7812
 
@@ -72,7 +72,7 @@ module DataMemoryTest;
         addr = 32'h0000_0005;
         memWrite = 1'b0;
         memRead = 1'b1;
-        memSize = 2'b10;
+        memSize = 2'b01;
         memSign = 1'b1;
         // expected: 32'hFFFF_FF56
 
@@ -81,7 +81,7 @@ module DataMemoryTest;
         addr = 32'h0000_0005;
         memWrite = 1'b0;
         memRead = 1'b1;
-        memSize = 2'b10;
+        memSize = 2'b01;
         memSign = 1'b0;
         // expected: 32'h0000_FF56
 
@@ -90,7 +90,7 @@ module DataMemoryTest;
         addr = 32'h0000_0000;
         memWrite = 1'b0;
         memRead = 1'b1;
-        memSize = 2'b01;
+        memSize = 2'b00;
         memSign = 1'b1;
         // expected: 32'h0000_0078
 
@@ -99,7 +99,7 @@ module DataMemoryTest;
         addr = 32'h0000_0000;
         memWrite = 1'b0;
         memRead = 1'b1;
-        memSize = 2'b01;
+        memSize = 2'b00;
         memSign = 1'b0;
         // expected: 32'h0000_0078
     end
