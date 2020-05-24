@@ -10,6 +10,7 @@ module DataMemoryTest;
     reg    [ 1:0] memSize;
     reg           memSign;
     wire   [31:0] dout;
+    wire          exception;
 
     DataMemory U1
     (
@@ -21,7 +22,8 @@ module DataMemoryTest;
         .memRead(memRead),
         .memSize(memSize),
         .memSign(memSign),
-        .dout(dout)
+        .dout(dout),
+        .exception(exception)
     );
 
     initial
@@ -59,31 +61,44 @@ module DataMemoryTest;
         memSign = 1'bX;
 
         #100
+        // sb
+        addr = 32'h0000_0007;
+        din = 32'hEEEE_EEEE;
+        memWrite = 1'b1;
+        memRead = 1'b0;
+        memSize = 2'b00;
+        memSign = 1'bX;
+
+        // Memory:
+        // 0  1  2  3  4  5  6  7
+        // 78 56 34 12 78 56 FF EE
+
+        #100
         // lw
-        addr = 32'h0000_0003;
+        addr = 32'h0000_0000;
         memWrite = 1'b0;
         memRead = 1'b1;
         memSize = 2'b10;
         memSign = 1'bX;
-        // expected: 32'hFF56_7812
+        // expected: 32'h1234_5678
 
         #100
         // lh
-        addr = 32'h0000_0005;
+        addr = 32'h0000_0006;
         memWrite = 1'b0;
         memRead = 1'b1;
         memSize = 2'b01;
         memSign = 1'b1;
-        // expected: 32'hFFFF_FF56
+        // expected: 32'hFFFF_EEFF
 
         #100
         // lhu
-        addr = 32'h0000_0005;
+        addr = 32'h0000_0006;
         memWrite = 1'b0;
         memRead = 1'b1;
         memSize = 2'b01;
         memSign = 1'b0;
-        // expected: 32'h0000_FF56
+        // expected: 32'h0000_EEFF
 
         #100
         // lb
@@ -102,6 +117,24 @@ module DataMemoryTest;
         memSize = 2'b00;
         memSign = 1'b0;
         // expected: 32'h0000_0078
+
+        #100
+        // lw
+        addr = 32'h0000_0003;
+        memWrite = 1'b0;
+        memRead = 1'b1;
+        memSize = 2'b10;
+        memSign = 1'bX;
+        // expected: exception
+
+        #100
+        // lh
+        addr = 32'h0000_0005;
+        memWrite = 1'b0;
+        memRead = 1'b1;
+        memSize = 2'b01;
+        memSign = 1'b1;
+        // expected: exception
     end
 
     always
@@ -116,19 +149,25 @@ endmodule
 module InstructionMemoryTest;
     reg    [31:0] addr;
     wire   [31:0] dout;
+    wire          exception;
 
     InstructionMemory U1
     (
-        .addr(addr), 
-        .dout(dout)
+        .addr(addr),
+        .dout(dout),
+        .exception(exception)
     );
 
     initial
     begin
-        addr = 12'h000;
+        addr = 32'h0000_0000;
         
         #100
-        addr = 12'h004;
+        addr = 32'h0000_0004;
+
+        #100
+        addr = 32'h0000_0002;
+        // expect: exception
     end
 
 endmodule
