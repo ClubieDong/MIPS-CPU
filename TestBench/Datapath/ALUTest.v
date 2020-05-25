@@ -66,72 +66,66 @@ module ALUTest;
         // expect 32'h0000_0001;
 
         #100
-        aluOp = 4'b0101; // sltu
+        aluOp = 4'b0101; // sltu/sltiu
         din1 = 32'hFFFF_FFFF;
         din2 = 32'h0000_0000;
         // expect 32'h0000_0000;
 
         #100
-        aluOp = 4'b0101; // sltu
+        aluOp = 4'b0101; // sltu/sltiu
         din1 = 32'h0000_0000;
         din2 = 32'hFFFF_FFFF;
         // expect 32'h0000_0001;
 
         #100
-        aluOp = 4'b0110; // sltiu
-        din1 = 32'hFFFF_FFFF;
-        din2 = 32'hFFFF_FFFF;
-        // expect 32'h0000_0001;
-
-        #100
-        aluOp = 4'b0111; // and/andi
+        aluOp = 4'b0110; // and/andi
         din1 = 5;
         din2 = 3;
         // expect 32'h0000_0001;
 
         #100
-        aluOp = 4'b1000; // lui
+        aluOp = 4'b0111; // lui
         din2 = 32'h0000_ABCD;
         // expect 32'hABCD_0000;
         
         #100
-        aluOp = 4'b1001; // nor
+        aluOp = 4'b1000; // nor
         din1 = 5;
         din2 = 3;
         // expect 32'hFFFF_FFF8;
 
         #100
-        aluOp = 4'b1010; // or/ori
+        aluOp = 4'b1001; // or/ori
         din1 = 5;
         din2 = 3;
         // expect 32'h0000_0007;
 
         #100
-        aluOp = 4'b1011; // xor/xori
+        aluOp = 4'b1010; // xor/xori
         din1 = 5;
         din2 = 3;
         // expect 32'h0000_0006;
 
         #100
-        aluOp = 4'b1100; // sllv/sll
+        aluOp = 4'b1011; // sllv/sll
         din1 = 4;
         din2 = 32'h1234_5678;
         // expect 32'h2345_6780;
 
         #100
-        aluOp = 4'b1101; // srav/sra
+        aluOp = 4'b1100; // srav/sra
         din1 = 4;
         din2 = 32'h1234_5678;
         // expect 32'h0123_4567;
 
         #100
-        aluOp = 4'b1101; // srav/sra
+        aluOp = 4'b1100; // srav/sra
         din1 = 4;
         din2 = 32'h8765_4321;
         // expect 32'hF876_5432;
 
         #100
-        aluOp = 4'b1110; // srlv/srl
+        aluOp = 4'b1101; // srlv/srl
         din1 = 4;
         din2 = 32'h8765_4321;
         // expect 32'h0876_5432;
