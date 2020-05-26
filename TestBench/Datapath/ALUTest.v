@@ -85,6 +85,7 @@ module ALUTest;
 
         #100
         aluOp = 4'b0111; // lui
+        din1 = 32'bX;
         din2 = 32'h0000_ABCD;
         // expect 32'hABCD_0000;
         
@@ -108,25 +109,25 @@ module ALUTest;
 
         #100
         aluOp = 4'b1011; // sllv/sll
-        din1 = 4;
+        din1 = 32'hXXXX_XX04;
         din2 = 32'h1234_5678;
         // expect 32'h2345_6780;
 
         #100
         aluOp = 4'b1100; // srav/sra
-        din1 = 4;
+        din1 = 32'hXXXX_XX04;
         din2 = 32'h1234_5678;
         // expect 32'h0123_4567;
 
         #100
         aluOp = 4'b1100; // srav/sra
-        din1 = 4;
+        din1 = 32'hXXXX_XX04;
         din2 = 32'h8765_4321;
         // expect 32'hF876_5432;
 
         #100
         aluOp = 4'b1101; // srlv/srl
-        din1 = 4;
+        din1 = 32'hXXXX_XX04;
         din2 = 32'h8765_4321;
         // expect 32'h0876_5432;
     end

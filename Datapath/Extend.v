@@ -3,6 +3,7 @@ module Extend(
     input         extSign,
     output [31:0] dout
 );
-    assign dout = extSign ? {{16{din[15]}}, din} : {16'b0, din};
+    assign sign = extSign ? din[15] : 1'b0;
+    assign dout = {{16{sign}}, din};
 
 endmodule

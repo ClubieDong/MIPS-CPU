@@ -32,6 +32,11 @@ module ExtendTest;
         din = 16'hABCD;
         extSign = 0;
         // expect: 32'h0000_ABCD
+
+        #100
+        din = 16'hABCD;
+        extSign = 1'bX;
+        // expect: 32'hXXXX_ABCD
     end
     
 endmodule
