@@ -9,7 +9,7 @@ module RegFile(
     output [31:0] dout1, // output data of addr1
     output [31:0] dout2 // output data of addr2
 );
-    reg[31:0] regs[31:0];
+    reg    [31:0] regs[31:0];
     integer i;
 
     always @ (posedge clk)
@@ -26,5 +26,38 @@ module RegFile(
 
     assign dout1 = regs[addr1];
     assign dout2 = regs[addr2];
+
+endmodule
+
+
+module HiLo(
+    input         clk,
+    input         rst,
+    input  [31:0] dinHi,
+    input  [31:0] dinLo,
+    input  [ 1:0] hlWrite,
+    output [31:0] doutHi,
+    output [31:0] doutLo
+);
+    reg    [31:0] hiReg, loReg;
+
+    always @ (posedge clk)
+    begin
+        if (rst)
+        begin
+            hiReg <= 32'bX;
+            loReg <= 32'bX;
+        end
+        else
+        begin
+            if (hlWrite[1])
+                hiReg <= dinHi;
+            if (hlWrite[0])
+                loReg <= dinLo;
+        end
+    end
+
+    assign doutHi = hiReg;
+    assign doutLo = loReg;
 
 endmodule

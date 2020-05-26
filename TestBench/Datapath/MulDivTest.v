@@ -4,16 +4,16 @@ module MulDivTest;
     reg    [ 3:0] mdOp;
     reg    [31:0] din1;
     reg    [31:0] din2;
-    wire   [31:0] hi;
-    wire   [31:0] lo;
+    wire   [31:0] doutHi;
+    wire   [31:0] doutLo;
 
     MulDiv U1
     (
         .mdOp(mdOp),
         .din1(din1),
         .din2(din2),
-        .hi(hi),
-        .lo(lo)
+        .doutHi(doutHi),
+        .doutLo(doutLo)
     );
     
     initial
