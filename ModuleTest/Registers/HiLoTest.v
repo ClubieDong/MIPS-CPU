@@ -22,24 +22,24 @@ module HiLoTest;
 
     initial
     begin
-        clk = 1;
+        clk = 0;
         rst = 1'b1;
-        #100
+        #20
         rst = 1'b0;
         
-        #100
+        #20
         dinHi = 32'h1111_1111;
         dinLo = 32'h2222_2222;
         hlWrite = 2'b10;
         // expect: 32'h1111_1111 32'hXXXX_XXXX
 
-        #100
+        #20
         dinHi = 32'h3333_3333;
         dinLo = 32'h4444_4444;
         hlWrite = 2'b01;
         // expect: 32'h1111_1111 32'h4444_4444
 
-        #100
+        #20
         dinHi = 32'h5555_5555;
         dinLo = 32'h6666_6666;
         hlWrite = 2'b11;

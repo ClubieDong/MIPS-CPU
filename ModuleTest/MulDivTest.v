@@ -23,19 +23,19 @@ module MulDivTest;
         din2 = -3;
         // expect 32'h0000_0002 32'hFFFF_FFFF
 
-        #100
+        #20
         mdOp = 2'b01; // divu
         din1 = 5;
         din2 = 3;
         // expect 32'h0000_0002 32'h0000_0001
 
-        #100
+        #20
         mdOp = 2'b10; // mult
         din1 = -5;
         din2 = 3;
         // expect 32'hFFFF_FFFF 32'hFFFF_FFF1
 
-        #100
+        #20
         mdOp = 2'b11; // multu
         din1 = 32'hABCD_CDEF;
         din2 = 32'h1234_5678;

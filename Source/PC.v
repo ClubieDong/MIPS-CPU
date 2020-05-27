@@ -21,9 +21,9 @@ module PC(
     always @ (posedge clk)
     begin
         if (rst)
-            pcReg <= 32'h0000_3000;
-        else if (takeException)
             pcReg <= 32'hBFC0_0380;
+        else if (takeException)
+            pcReg <= 32'h8000_0180;
         else if (takeEret)
             pcReg <= epc;
         else if (takeBranch)

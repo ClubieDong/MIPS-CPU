@@ -26,28 +26,28 @@ module RegFileTest;
 
     initial
     begin
-        clk = 1;
+        clk = 0;
         rst = 1'b1;
-        #100
+        #20
         rst = 1'b0;
         
-        #100
+        #20
         addr3 = 0;
         din = 32'h1234_5678;
         regWrite = 1'b1;
         
-        #100
+        #20
         addr3 = 1;
         din = 32'h1111_1111;
         regWrite = 1'b1;
 
-        #100;
+        #20;
         addr1 = 0;
         addr2 = 1;
         regWrite = 1'b0;
         // expect: 32'h0000_0000 32'h1111_1111
 
-        #100
+        #20
         addr1 = 2;
         addr3 = 2;
         din = 32'h2222_2222;

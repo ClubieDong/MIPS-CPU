@@ -18,22 +18,22 @@ module ExtendTest;
         extSign = 1;
         // expect: 32'h0000_1234
 
-        #100
+        #20
         din = 16'h1234;
         extSign = 0;
         // expect: 32'h0000_1234
 
-        #100
+        #20
         din = 16'hABCD;
         extSign = 1;
         // expect: 32'hFFFF_ABCD
 
-        #100
+        #20
         din = 16'hABCD;
         extSign = 0;
         // expect: 32'h0000_ABCD
 
-        #100
+        #20
         din = 16'hABCD;
         extSign = 1'bX;
         // expect: 32'hXXXX_ABCD
