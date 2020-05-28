@@ -36,10 +36,10 @@ module PCTest;
     begin
         clk = 0;
         rst = 1'b1;
-        // expect: 32'hBFC0_0380
+        // expect: 32'hBFC0_0000
         #20
         rst = 1'b0;
-        // expect: 32'hBFC0_0384
+        // expect: 32'hBFC0_0004
 
         #20
         takeException = 1;
@@ -47,7 +47,7 @@ module PCTest;
         takeBranch = 0;
         takeJumpImm = 0;
         takeJumpReg = 0;
-        // expect: 32'h8000_0180
+        // expect: 32'hBFC0_0380
 
         #20
         takeException = 0;
