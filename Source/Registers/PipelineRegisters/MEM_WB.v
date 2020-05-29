@@ -5,32 +5,59 @@ module MEM_WB(
     input         rst,
     input  [31:0] MEM_pc4,
     input  [31:0] MEM_instr,
+    input  [31:0] MEM_aluDout,
+    input  [31:0] MEM_regDout1,
+    input  [31:0] MEM_regDout2,
+    input  [31:0] MEM_mdDoutHi,
+    input  [31:0] MEM_mdDoutLo,
+    input  [31:0] MEM_hlDoutHi,
+    input  [31:0] MEM_hlDoutLo,
+    input  [31:0] MEM_dmDout,
+    input  [31:0] MEM_cp0Dout,
     input         MEM_regWrite,
     input  [ 1:0] MEM_regAddr3Src,
     input  [ 2:0] MEM_regDinSrc,
+    input         MEM_cp0Write,
     input  [ 1:0] MEM_hlWrite,
     input         MEM_hlDinHiSrc,
     input         MEM_hlDinLoSrc,
-    input         MEM_takeEret,
     output [31:0] WB_pc4,
     output [31:0] WB_instr,
+    output [31:0] WB_aluDout,
+    output [31:0] WB_regDout1,
+    output [31:0] WB_regDout2,
+    output [31:0] WB_mdDoutHi,
+    output [31:0] WB_mdDoutLo,
+    output [31:0] WB_hlDoutHi,
+    output [31:0] WB_hlDoutLo,
+    output [31:0] WB_dmDout,
+    output [31:0] WB_cp0Dout,
     output        WB_regWrite,
     output [ 1:0] WB_regAddr3Src,
     output [ 2:0] WB_regDinSrc,
+    output        WB_cp0Write,
     output [ 1:0] WB_hlWrite,
     output        WB_hlDinHiSrc,
-    output        WB_hlDinLoSrc,
-    output        WB_takeEret
+    output        WB_hlDinLoSrc
 );
     reg    [31:0] pc4Reg;
     reg    [31:0] instrReg;
+    reg    [31:0] aluDoutReg;
+    reg    [31:0] regDout1Reg;
+    reg    [31:0] regDout2Reg;
+    reg    [31:0] mdDoutHiReg;
+    reg    [31:0] mdDoutLoReg;
+    reg    [31:0] hlDoutHiReg;
+    reg    [31:0] hlDoutLoReg;
+    reg    [31:0] dmDoutReg;
+    reg    [31:0] cp0DoutReg;
     reg           regWriteReg;
     reg    [ 1:0] regAddr3SrcReg;
     reg    [ 2:0] regDinSrcReg;
+    reg           cp0WriteReg;
     reg    [ 1:0] hlWriteReg;
     reg           hlDinHiSrcReg;
     reg           hlDinLoSrcReg;
-    reg           takeEretReg;
 
     always @ (posedge clk)
     begin
@@ -38,36 +65,63 @@ module MEM_WB(
         begin
             pc4Reg <= 32'bX;
             instrReg <= 32'bX;
+            aluDoutReg <= 32'bX;
+            regDout1Reg <= 32'bX;
+            regDout2Reg <= 32'bX;
+            mdDoutHiReg <= 32'bX;
+            mdDoutLoReg <= 32'bX;
+            hlDoutHiReg <= 32'bX;
+            hlDoutLoReg <= 32'bX;
+            dmDoutReg <= 32'bX;
+            cp0DoutReg <= 32'bX;
             regWriteReg <= 32'bX;
             regAddr3SrcReg <= 32'bX;
             regDinSrcReg <= 32'bX;
+            cp0WriteReg <= 32'bX;
             hlWriteReg <= 32'bX;
             hlDinHiSrcReg <= 32'bX;
             hlDinLoSrcReg <= 32'bX;
-            takeEretReg <= 32'bX;
         end
         else
         begin
             pc4Reg <= MEM_pc4;
             instrReg <= MEM_instr;
+            aluDoutReg <= MEM_aluDout;
+            regDout1Reg <= MEM_regDout1;
+            regDout2Reg <= MEM_regDout2;
+            mdDoutHiReg <= MEM_mdDoutHi;
+            mdDoutLoReg <= MEM_mdDoutLo;
+            hlDoutHiReg <= MEM_hlDoutHi;
+            hlDoutLoReg <= MEM_hlDoutLo;
+            dmDoutReg <= MEM_dmDout;
+            cp0DoutReg <= MEM_cp0Dout;
             regWriteReg <= MEM_regWrite;
             regAddr3SrcReg <= MEM_regAddr3Src;
             regDinSrcReg <= MEM_regDinSrc;
+            cp0WriteReg <= MEM_cp0Write;
             hlWriteReg <= MEM_hlWrite;
             hlDinHiSrcReg <= MEM_hlDinHiSrc;
             hlDinLoSrcReg <= MEM_hlDinLoSrc;
-            takeEretReg <= MEM_takeEret;
         end
     end
 
     assign WB_pc4 = pc4Reg;
     assign WB_instr = instrReg;
+    assign WB_aluDout = aluDoutReg;
+    assign WB_regDout1 = regDout1Reg;
+    assign WB_regDout2 = regDout2Reg;
+    assign WB_mdDoutHi = mdDoutHiReg;
+    assign WB_mdDoutLo = mdDoutLoReg;
+    assign WB_hlDoutHi = hlDoutHiReg;
+    assign WB_hlDoutLo = hlDoutLoReg;
+    assign WB_dmDout = dmDoutReg;
+    assign WB_cp0Dout = cp0DoutReg;
     assign WB_regWrite = regWriteReg;
     assign WB_regAddr3Src = regAddr3SrcReg;
     assign WB_regDinSrc = regDinSrcReg;
+    assign WB_cp0Write = cp0WriteReg;
     assign WB_hlWrite = hlWriteReg;
     assign WB_hlDinHiSrc = hlDinHiSrcReg;
     assign WB_hlDinLoSrc = hlDinLoSrcReg;
-    assign WB_takeEret = takeEretReg;
 
 endmodule

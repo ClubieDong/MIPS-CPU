@@ -5,6 +5,9 @@ module ID_EX(
     input         rst,
     input  [31:0] ID_pc4,
     input  [31:0] ID_instr,
+    input  [31:0] ID_regDout1,
+    input  [31:0] ID_regDout2,
+    input  [31:0] ID_immEx,
     input  [ 3:0] ID_aluOp,
     input         ID_aluDin1Src,
     input         ID_aluDin2Src,
@@ -16,12 +19,15 @@ module ID_EX(
     input         ID_regWrite,
     input  [ 1:0] ID_regAddr3Src,
     input  [ 2:0] ID_regDinSrc,
+    input         ID_cp0Write,
     input  [ 1:0] ID_hlWrite,
     input         ID_hlDinHiSrc,
     input         ID_hlDinLoSrc,
-    input         ID_takeEret,
     output [31:0] EX_pc4,
     output [31:0] EX_instr,
+    output [31:0] EX_regDout1,
+    output [31:0] EX_regDout2,
+    output [31:0] EX_immEx,
     output [ 3:0] EX_aluOp,
     output        EX_aluDin1Src,
     output        EX_aluDin2Src,
@@ -33,13 +39,16 @@ module ID_EX(
     output        EX_regWrite,
     output [ 1:0] EX_regAddr3Src,
     output [ 2:0] EX_regDinSrc,
+    output        EX_cp0Write,
     output [ 1:0] EX_hlWrite,
     output        EX_hlDinHiSrc,
-    output        EX_hlDinLoSrc,
-    output        EX_takeEret
+    output        EX_hlDinLoSrc
 );
     reg    [31:0] pc4Reg;
     reg    [31:0] instrReg;
+    reg    [31:0] regDout1Reg;
+    reg    [31:0] regDout2Reg;
+    reg    [31:0] immExReg;
     reg    [ 3:0] aluOpReg;
     reg           aluDin1SrcReg;
     reg           aluDin2SrcReg;
@@ -51,10 +60,10 @@ module ID_EX(
     reg           regWriteReg;
     reg    [ 1:0] regAddr3SrcReg;
     reg    [ 2:0] regDinSrcReg;
+    reg           cp0WriteReg;
     reg    [ 1:0] hlWriteReg;
     reg           hlDinHiSrcReg;
     reg           hlDinLoSrcReg;
-    reg           takeEretReg;
 
     always @ (posedge clk)
     begin
@@ -62,6 +71,9 @@ module ID_EX(
         begin
             pc4Reg <= 32'bX;
             instrReg <= 32'bX;
+            regDout1Reg <= 32'bX;
+            regDout2Reg <= 32'bX;
+            immExReg <= 32'bX;
             aluOpReg <= 32'bX;
             aluDin1SrcReg <= 32'bX;
             aluDin2SrcReg <= 32'bX;
@@ -73,15 +85,18 @@ module ID_EX(
             regWriteReg <= 32'bX;
             regAddr3SrcReg <= 32'bX;
             regDinSrcReg <= 32'bX;
+            cp0WriteReg <= 32'bX;
             hlWriteReg <= 32'bX;
             hlDinHiSrcReg <= 32'bX;
             hlDinLoSrcReg <= 32'bX;
-            takeEretReg <= 32'bX;
         end
         else
         begin
             pc4Reg <= ID_pc4;
             instrReg <= ID_instr;
+            regDout1Reg <= ID_regDout1;
+            regDout2Reg <= ID_regDout2;
+            immExReg <= ID_immEx;
             aluOpReg <= ID_aluOp;
             aluDin1SrcReg <= ID_aluDin1Src;
             aluDin2SrcReg <= ID_aluDin2Src;
@@ -93,15 +108,18 @@ module ID_EX(
             regWriteReg <= ID_regWrite;
             regAddr3SrcReg <= ID_regAddr3Src;
             regDinSrcReg <= ID_regDinSrc;
+            cp0WriteReg <= ID_cp0Write;
             hlWriteReg <= ID_hlWrite;
             hlDinHiSrcReg <= ID_hlDinHiSrc;
             hlDinLoSrcReg <= ID_hlDinLoSrc;
-            takeEretReg <= ID_takeEret;
         end
     end
 
     assign EX_pc4 = pc4Reg;
     assign EX_instr = instrReg;
+    assign EX_regDout1 = regDout1Reg;
+    assign EX_regDout2 = regDout2Reg;
+    assign EX_immEx = immExReg;
     assign EX_aluOp = aluOpReg;
     assign EX_aluDin1Src = aluDin1SrcReg;
     assign EX_aluDin2Src = aluDin2SrcReg;
@@ -113,9 +131,9 @@ module ID_EX(
     assign EX_regWrite = regWriteReg;
     assign EX_regAddr3Src = regAddr3SrcReg;
     assign EX_regDinSrc = regDinSrcReg;
+    assign EX_cp0Write = cp0WriteReg;
     assign EX_hlWrite = hlWriteReg;
     assign EX_hlDinHiSrc = hlDinHiSrcReg;
     assign EX_hlDinLoSrc = hlDinLoSrcReg;
-    assign EX_takeEret = takeEretReg;
 
 endmodule

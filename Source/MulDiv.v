@@ -1,5 +1,5 @@
 module MulDiv(
-    input  [ 3:0] mdOp,
+    input  [ 1:0] mdOp,
     input  [31:0] din1,
     input  [31:0] din2,
     output [31:0] doutHi,

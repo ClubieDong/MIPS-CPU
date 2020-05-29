@@ -182,10 +182,12 @@ with open("Source/Registers/PipelineRegisters/EX_MEM.v", "r") as file:
     lines += Instantiation(file)
 with open("Source/Memory/DataMemory.v", "r") as file:
     lines += Instantiation(file)
-# WB
-with open("Source/Registers/PipelineRegisters/MEM_WB.v", "r") as file:
+with open("Source/CP0.v", "r") as file:
     lines += Instantiation(file)
 with open("Source/Registers/HiLo.v", "r") as file:
+    lines += Instantiation(file)
+# WB
+with open("Source/Registers/PipelineRegisters/MEM_WB.v", "r") as file:
     lines += Instantiation(file)
 clip.copy("".join(lines))
 print("Generated instantiation code has been copied into clipboard.")

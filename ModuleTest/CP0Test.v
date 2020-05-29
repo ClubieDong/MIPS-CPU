@@ -3,8 +3,10 @@
 module CP0Test;
     reg           clk;
     reg           rst;
-    reg    [ 4:0] addr;
-    reg    [ 5:0] sel;
+    reg    [ 4:0] addrR;
+    reg    [ 5:0] selR;
+    reg    [ 4:0] addrW;
+    reg    [ 5:0] selW;
     reg    [31:0] din;
     reg           cp0Write;
     wire   [31:0] dout;
@@ -14,8 +16,10 @@ module CP0Test;
     (
         .clk(clk),
         .rst(rst),
-        .addr(addr),
-        .sel(sel),
+        .addrR(addrR),
+        .selR(selR),
+        .addrW(addrW),
+        .selW(selW),
         .din(din),
         .cp0Write(cp0Write),
         .dout(dout),
@@ -29,32 +33,32 @@ module CP0Test;
         #20
         rst = 1'b0;
         
-        addr = 8;
-        sel = 0;
+        addrW = 8;
+        selW = 0;
         din = 32'h1234_5678;
         cp0Write = 1'b1;
 
         #20
-        addr = 8;
-        sel = 1;
+        addrW = 8;
+        selW = 1;
         din = 32'h8765_4321;
         cp0Write = 1'b1;
         
         #20
-        addr = 14;
-        sel = 0;
+        addrW = 14;
+        selW = 0;
         din = 32'h1111_1111;
         cp0Write = 1'b1;
 
         #20;
-        addr = 8;
-        sel = 0;
+        addrR = 8;
+        selR = 0;
         cp0Write = 1'b0;
         // expect: 32'h1234_5678 32'h1111_1111
 
         #20;
-        addr = 8;
-        sel = 1;
+        addrR = 8;
+        selR = 1;
         cp0Write = 1'b0;
         // expect: 32'hXXXX_XXXX 32'h1111_1111
     end
