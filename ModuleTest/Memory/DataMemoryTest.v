@@ -2,6 +2,7 @@
 
 module DataMemoryTest;
     reg           clk;
+    reg           rst;
     reg    [31:0] addr;
     reg    [31:0] din;
     reg           memWrite;
@@ -9,11 +10,13 @@ module DataMemoryTest;
     reg    [ 1:0] memSize;
     reg           memSign;
     wire   [31:0] dout;
+    wire          requireStall;
     wire          exception;
 
     DataMemory U1
     (
         .clk(clk),
+        .rst(rst),
         .addr(addr),
         .din(din),
         .memWrite(memWrite),
@@ -21,12 +24,16 @@ module DataMemoryTest;
         .memSize(memSize),
         .memSign(memSign),
         .dout(dout),
+        .requireStall(requireStall),
         .exception(exception)
     );
 
     initial
     begin
-        clk = 1;
+        clk = 0;
+        rst = 1;
+        #20
+        rst = 0;
 
         // sw
         addr = 32'h0000_0000;
@@ -76,7 +83,7 @@ module DataMemoryTest;
         memSign = 1'bX;
         // expected: 32'h1234_5678
 
-        #20
+        #40
         // lh
         addr = 32'h0000_0006;
         memWrite = 1'b0;
@@ -85,7 +92,7 @@ module DataMemoryTest;
         memSign = 1'b1;
         // expected: 32'hFFFF_EEFF
 
-        #20
+        #40
         // lhu
         addr = 32'h0000_0006;
         memWrite = 1'b0;
@@ -94,7 +101,7 @@ module DataMemoryTest;
         memSign = 1'b0;
         // expected: 32'h0000_EEFF
 
-        #20
+        #40
         // lb
         addr = 32'h0000_0000;
         memWrite = 1'b0;
@@ -103,7 +110,7 @@ module DataMemoryTest;
         memSign = 1'b1;
         // expected: 32'h0000_0078
 
-        #20
+        #40
         // lbu
         addr = 32'h0000_0000;
         memWrite = 1'b0;
@@ -112,11 +119,11 @@ module DataMemoryTest;
         memSign = 1'b0;
         // expected: 32'h0000_0078
 
-        #20
-        // lw
+        #40
+        // sw
         addr = 32'h0000_0003;
-        memWrite = 1'b0;
-        memRead = 1'b1;
+        memWrite = 1'b1;
+        memRead = 1'b0;
         memSize = 2'b10;
         memSign = 1'bX;
         // expected: exception
@@ -129,6 +136,9 @@ module DataMemoryTest;
         memSize = 2'b01;
         memSign = 1'b1;
         // expected: exception
+
+        #20
+        memRead = 1'b0;
     end
 
     always

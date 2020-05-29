@@ -1,9 +1,13 @@
 module InstructionMemory(
     input         clk,
+    input         rst,
     input  [31:0] addr,
     output [31:0] dout,
+    output        requireStall,
     output        exception
 );
+    reg           stall;
+
     wire          inst_sram_en;   
     wire   [ 3:0] inst_sram_wen;
     wire   [31:0] inst_sram_addr;
@@ -18,6 +22,15 @@ module InstructionMemory(
         .dina(inst_sram_wdata),
         .douta(inst_sram_rdata)
     );
+
+    always @ (posedge clk)
+    begin
+        if (rst)
+            stall <= 0;
+        else
+            stall <= !stall;
+    end
+    assign requireStall = stall && !exception;
 
     assign inst_sram_en = 1;
     assign inst_sram_wen = 4'b0;

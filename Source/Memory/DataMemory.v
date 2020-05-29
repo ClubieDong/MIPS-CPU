@@ -1,5 +1,6 @@
 module DataMemory(
     input         clk,
+    input         rst,
     input  [31:0] addr,
     input  [31:0] din,
     input         memWrite,
@@ -7,8 +8,11 @@ module DataMemory(
     input  [ 1:0] memSize,
     input         memSign,
     output [31:0] dout,
+    output        requireStall,
     output        exception
 );
+    reg           stall;
+    
     wire          data_sram_en;
     wire   [ 3:0] data_sram_wen;
     wire   [31:0] data_sram_addr;
@@ -23,6 +27,17 @@ module DataMemory(
         .dina(data_sram_wdata),
         .douta(data_sram_rdata)
     );
+
+    always @ (posedge clk)
+    begin
+        if (rst)
+            stall <= 0;
+        else if (stall)
+            stall <= 0;
+        else if (memRead)
+            stall <= 1;
+    end
+    assign requireStall = stall && !exception && memRead;
 
     assign exception = !(memWrite || memRead) ? 0 :
         memSize == 2'b01 && addr[  0] != 1'b0 ? 1 : // halfword
