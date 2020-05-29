@@ -26,7 +26,7 @@ module InstructionMemory(
     always @ (posedge clk)
     begin
         if (rst)
-            stall <= 0;
+            stall <= 1;
         else
             stall <= !stall;
     end

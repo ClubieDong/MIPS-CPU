@@ -1,6 +1,7 @@
 module PC(
     input         clk,
     input         rst,
+    input         stall,
     input  [31:0] branchImmEx, // Extended Imm of branch instr
     input  [25:0] jumpImm,
     input  [31:0] jumpReg,
@@ -22,18 +23,21 @@ module PC(
     begin
         if (rst)
             pcReg <= 32'hBFC0_0000;
-        else if (takeException)
-            pcReg <= 32'hBFC0_0380;
-        else if (takeEret)
-            pcReg <= epc;
-        else if (takeBranch)
-            pcReg <= pc4 + (branchImmEx << 2);
-        else if (takeJumpImm)
-            pcReg <= {pc4[31:28], jumpImm, 2'b0};
-        else if (takeJumpReg)
-            pcReg <= jumpReg;
-        else
-            pcReg <= pc4;
+        else if (!stall)
+        begin
+            if (takeException)
+                pcReg <= 32'hBFC0_0380;
+            else if (takeEret)
+                pcReg <= epc;
+            else if (takeBranch)
+                pcReg <= pc4 + (branchImmEx << 2);
+            else if (takeJumpImm)
+                pcReg <= {pc4[31:28], jumpImm, 2'b0};
+            else if (takeJumpReg)
+                pcReg <= jumpReg;
+            else
+                pcReg <= pc4;
+        end
     end
 
 endmodule

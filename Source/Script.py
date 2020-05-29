@@ -30,6 +30,8 @@ def GeneratePipelineReg(stage1, stage2, signals):
     lines.append(f"module {stage1}_{stage2}(")
     lines.append(f"    input         clk,")
     lines.append(f"    input         rst,")
+    lines.append(f"    input         flush,")
+    lines.append(f"    input         stall,")
     for i in signals:
         lines.append(f"    input  {FormatWidth(i[1])} {stage1}_{i[0]},")
     for i in signals:
@@ -46,7 +48,12 @@ def GeneratePipelineReg(stage1, stage2, signals):
     for i in signals:
         lines.append(f"            {i[0]}Reg <= 32'bX;")
     lines.append(f"        end")
-    lines.append(f"        else")
+    lines.append(f"        else if (flush)")
+    lines.append(f"        begin")
+    for i in signals:
+        lines.append(f"            {i[0]}Reg <= 0;")
+    lines.append(f"        end")
+    lines.append(f"        else if (!stall)")
     lines.append(f"        begin")
     for i in signals:
         lines.append(f"            {i[0]}Reg <= {stage1}_{i[0]};")
@@ -154,6 +161,8 @@ sheet_control = excel["Control"]
 GenerateControl(sheet_control)
 
 lines = []
+with open("Source/Control/PipelineControl.v", "r") as file:
+    lines += Instantiation(file)
 # IF
 with open("Source/PC.v", "r") as file:
     lines += Instantiation(file)
@@ -162,7 +171,7 @@ with open("Source/Memory/InstructionMemory.v", "r") as file:
 # ID
 with open("Source/Registers/PipelineRegisters/IF_ID.v", "r") as file:
     lines += Instantiation(file)
-with open("Source/Control.v", "r") as file:
+with open("Source/Control/Control.v", "r") as file:
     lines += Instantiation(file)
 with open("Source/Registers/RegFile.v", "r") as file:
     lines += Instantiation(file)

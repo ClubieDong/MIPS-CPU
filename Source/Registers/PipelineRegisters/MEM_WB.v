@@ -3,6 +3,8 @@
 module MEM_WB(
     input         clk,
     input         rst,
+    input         flush,
+    input         stall,
     input  [31:0] MEM_pc4,
     input  [31:0] MEM_instr,
     input  [31:0] MEM_aluDout,
@@ -82,7 +84,28 @@ module MEM_WB(
             hlDinHiSrcReg <= 32'bX;
             hlDinLoSrcReg <= 32'bX;
         end
-        else
+        else if (flush)
+        begin
+            pc4Reg <= 0;
+            instrReg <= 0;
+            aluDoutReg <= 0;
+            regDout1Reg <= 0;
+            regDout2Reg <= 0;
+            mdDoutHiReg <= 0;
+            mdDoutLoReg <= 0;
+            hlDoutHiReg <= 0;
+            hlDoutLoReg <= 0;
+            dmDoutReg <= 0;
+            cp0DoutReg <= 0;
+            regWriteReg <= 0;
+            regAddr3SrcReg <= 0;
+            regDinSrcReg <= 0;
+            cp0WriteReg <= 0;
+            hlWriteReg <= 0;
+            hlDinHiSrcReg <= 0;
+            hlDinLoSrcReg <= 0;
+        end
+        else if (!stall)
         begin
             pc4Reg <= MEM_pc4;
             instrReg <= MEM_instr;

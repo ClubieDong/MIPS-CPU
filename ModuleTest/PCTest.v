@@ -3,6 +3,7 @@
 module PCTest;
     reg           clk;
     reg           rst;
+    reg           stall;
     reg    [31:0] branchImmEx;
     reg    [25:0] jumpImm;
     reg    [31:0] jumpReg;
@@ -19,6 +20,7 @@ module PCTest;
     (
         .clk(clk),
         .rst(rst),
+        .stall(stall),
         .branchImmEx(branchImmEx),
         .jumpImm(jumpImm),
         .jumpReg(jumpReg),
@@ -39,6 +41,7 @@ module PCTest;
         // expect: 32'hBFC0_0000
         #20
         rst = 1'b0;
+        stall = 1'b0;
         // expect: 32'hBFC0_0004
 
         #20
@@ -92,6 +95,9 @@ module PCTest;
         takeJumpImm = 0;
         takeJumpReg = 0;
         // expect: 32'h2222_2224
+
+        #20
+        stall = 1'b1;
     end
         
     always
