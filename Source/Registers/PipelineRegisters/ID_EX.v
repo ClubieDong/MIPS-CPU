@@ -11,6 +11,9 @@ module ID_EX(
     input  [31:0] ID_regDout2,
     input  [31:0] ID_immEx,
     input  [ 4:0] ID_regAddr3,
+    input         ID_imExcept,
+    input  [ 1:0] ID_ctrlExcept,
+    input         ID_delaySlot,
     input  [ 3:0] ID_aluOp,
     input         ID_aluDin1Src,
     input         ID_aluDin2Src,
@@ -25,12 +28,16 @@ module ID_EX(
     input  [ 1:0] ID_hlWrite,
     input         ID_hlDinHiSrc,
     input         ID_hlDinLoSrc,
+    input         ID_takeEret,
     output [31:0] EX_pc4,
     output [31:0] EX_instr,
     output [31:0] EX_regDout1,
     output [31:0] EX_regDout2,
     output [31:0] EX_immEx,
     output [ 4:0] EX_regAddr3,
+    output        EX_imExcept,
+    output [ 1:0] EX_ctrlExcept,
+    output        EX_delaySlot,
     output [ 3:0] EX_aluOp,
     output        EX_aluDin1Src,
     output        EX_aluDin2Src,
@@ -44,7 +51,8 @@ module ID_EX(
     output        EX_cp0Write,
     output [ 1:0] EX_hlWrite,
     output        EX_hlDinHiSrc,
-    output        EX_hlDinLoSrc
+    output        EX_hlDinLoSrc,
+    output        EX_takeEret
 );
     reg    [31:0] pc4Reg;
     reg    [31:0] instrReg;
@@ -52,6 +60,9 @@ module ID_EX(
     reg    [31:0] regDout2Reg;
     reg    [31:0] immExReg;
     reg    [ 4:0] regAddr3Reg;
+    reg           imExceptReg;
+    reg    [ 1:0] ctrlExceptReg;
+    reg           delaySlotReg;
     reg    [ 3:0] aluOpReg;
     reg           aluDin1SrcReg;
     reg           aluDin2SrcReg;
@@ -66,6 +77,7 @@ module ID_EX(
     reg    [ 1:0] hlWriteReg;
     reg           hlDinHiSrcReg;
     reg           hlDinLoSrcReg;
+    reg           takeEretReg;
 
     always @ (posedge clk)
     begin
@@ -78,6 +90,9 @@ module ID_EX(
             regDout2Reg <= 0;
             immExReg <= 0;
             regAddr3Reg <= 0;
+            imExceptReg <= 0;
+            ctrlExceptReg <= 0;
+            delaySlotReg <= 0;
             aluOpReg <= 0;
             aluDin1SrcReg <= 0;
             aluDin2SrcReg <= 0;
@@ -92,6 +107,7 @@ module ID_EX(
             hlWriteReg <= 0;
             hlDinHiSrcReg <= 0;
             hlDinLoSrcReg <= 0;
+            takeEretReg <= 0;
         end
         else if (!stall)
         begin
@@ -101,6 +117,9 @@ module ID_EX(
             regDout2Reg <= ID_regDout2;
             immExReg <= ID_immEx;
             regAddr3Reg <= ID_regAddr3;
+            imExceptReg <= ID_imExcept;
+            ctrlExceptReg <= ID_ctrlExcept;
+            delaySlotReg <= ID_delaySlot;
             aluOpReg <= ID_aluOp;
             aluDin1SrcReg <= ID_aluDin1Src;
             aluDin2SrcReg <= ID_aluDin2Src;
@@ -115,6 +134,7 @@ module ID_EX(
             hlWriteReg <= ID_hlWrite;
             hlDinHiSrcReg <= ID_hlDinHiSrc;
             hlDinLoSrcReg <= ID_hlDinLoSrc;
+            takeEretReg <= ID_takeEret;
         end
     end
 
@@ -124,6 +144,9 @@ module ID_EX(
     assign EX_regDout2 = regDout2Reg;
     assign EX_immEx = immExReg;
     assign EX_regAddr3 = regAddr3Reg;
+    assign EX_imExcept = imExceptReg;
+    assign EX_ctrlExcept = ctrlExceptReg;
+    assign EX_delaySlot = delaySlotReg;
     assign EX_aluOp = aluOpReg;
     assign EX_aluDin1Src = aluDin1SrcReg;
     assign EX_aluDin2Src = aluDin2SrcReg;
@@ -138,5 +161,6 @@ module ID_EX(
     assign EX_hlWrite = hlWriteReg;
     assign EX_hlDinHiSrc = hlDinHiSrcReg;
     assign EX_hlDinLoSrc = hlDinLoSrcReg;
+    assign EX_takeEret = takeEretReg;
 
 endmodule

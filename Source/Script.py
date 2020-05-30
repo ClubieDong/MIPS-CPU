@@ -159,8 +159,6 @@ sheet_control = excel["Control"]
 GenerateControl(sheet_control)
 
 lines = []
-with open("Source/Control/PipelineControl.v", "r") as file:
-    lines += Instantiation(file)
 # IF
 with open("Source/PC.v", "r") as file:
     lines += Instantiation(file)
@@ -169,7 +167,7 @@ with open("Source/Memory/InstructionMemory.v", "r") as file:
 # ID
 with open("Source/Registers/PipelineRegisters/IF_ID.v", "r") as file:
     lines += Instantiation(file)
-with open("Source/Control/Control.v", "r") as file:
+with open("Source/Control.v", "r") as file:
     lines += Instantiation(file)
 with open("Source/Registers/RegFile.v", "r") as file:
     lines += Instantiation(file)

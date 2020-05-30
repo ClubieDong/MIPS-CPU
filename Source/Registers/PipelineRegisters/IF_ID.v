@@ -7,11 +7,17 @@ module IF_ID(
     input         stall,
     input  [31:0] IF_pc4,
     input  [31:0] IF_instr,
+    input         IF_imExcept,
+    input         IF_delaySlot,
     output [31:0] ID_pc4,
-    output [31:0] ID_instr
+    output [31:0] ID_instr,
+    output        ID_imExcept,
+    output        ID_delaySlot
 );
     reg    [31:0] pc4Reg;
     reg    [31:0] instrReg;
+    reg           imExceptReg;
+    reg           delaySlotReg;
 
     always @ (posedge clk)
     begin
@@ -20,15 +26,21 @@ module IF_ID(
         if (rst || flush)
         begin
             instrReg <= 0;
+            imExceptReg <= 0;
+            delaySlotReg <= 0;
         end
         else if (!stall)
         begin
             pc4Reg <= IF_pc4;
             instrReg <= IF_instr;
+            imExceptReg <= IF_imExcept;
+            delaySlotReg <= IF_delaySlot;
         end
     end
 
     assign ID_pc4 = pc4Reg;
     assign ID_instr = instrReg;
+    assign ID_imExcept = imExceptReg;
+    assign ID_delaySlot = delaySlotReg;
 
 endmodule

@@ -13,6 +13,10 @@ module EX_MEM(
     input  [31:0] EX_mdDoutHi,
     input  [31:0] EX_mdDoutLo,
     input  [ 4:0] EX_regAddr3,
+    input         EX_imExcept,
+    input  [ 1:0] EX_ctrlExcept,
+    input         EX_aluExcept,
+    input         EX_delaySlot,
     input         EX_memWrite,
     input         EX_memRead,
     input  [ 1:0] EX_memSize,
@@ -23,6 +27,7 @@ module EX_MEM(
     input  [ 1:0] EX_hlWrite,
     input         EX_hlDinHiSrc,
     input         EX_hlDinLoSrc,
+    input         EX_takeEret,
     output [31:0] MEM_pc4,
     output [31:0] MEM_instr,
     output [31:0] MEM_aluDout,
@@ -31,6 +36,10 @@ module EX_MEM(
     output [31:0] MEM_mdDoutHi,
     output [31:0] MEM_mdDoutLo,
     output [ 4:0] MEM_regAddr3,
+    output        MEM_imExcept,
+    output [ 1:0] MEM_ctrlExcept,
+    output        MEM_aluExcept,
+    output        MEM_delaySlot,
     output        MEM_memWrite,
     output        MEM_memRead,
     output [ 1:0] MEM_memSize,
@@ -40,7 +49,8 @@ module EX_MEM(
     output        MEM_cp0Write,
     output [ 1:0] MEM_hlWrite,
     output        MEM_hlDinHiSrc,
-    output        MEM_hlDinLoSrc
+    output        MEM_hlDinLoSrc,
+    output        MEM_takeEret
 );
     reg    [31:0] pc4Reg;
     reg    [31:0] instrReg;
@@ -50,6 +60,10 @@ module EX_MEM(
     reg    [31:0] mdDoutHiReg;
     reg    [31:0] mdDoutLoReg;
     reg    [ 4:0] regAddr3Reg;
+    reg           imExceptReg;
+    reg    [ 1:0] ctrlExceptReg;
+    reg           aluExceptReg;
+    reg           delaySlotReg;
     reg           memWriteReg;
     reg           memReadReg;
     reg    [ 1:0] memSizeReg;
@@ -60,6 +74,7 @@ module EX_MEM(
     reg    [ 1:0] hlWriteReg;
     reg           hlDinHiSrcReg;
     reg           hlDinLoSrcReg;
+    reg           takeEretReg;
 
     always @ (posedge clk)
     begin
@@ -74,6 +89,10 @@ module EX_MEM(
             mdDoutHiReg <= 0;
             mdDoutLoReg <= 0;
             regAddr3Reg <= 0;
+            imExceptReg <= 0;
+            ctrlExceptReg <= 0;
+            aluExceptReg <= 0;
+            delaySlotReg <= 0;
             memWriteReg <= 0;
             memReadReg <= 0;
             memSizeReg <= 0;
@@ -84,6 +103,7 @@ module EX_MEM(
             hlWriteReg <= 0;
             hlDinHiSrcReg <= 0;
             hlDinLoSrcReg <= 0;
+            takeEretReg <= 0;
         end
         else if (!stall)
         begin
@@ -95,6 +115,10 @@ module EX_MEM(
             mdDoutHiReg <= EX_mdDoutHi;
             mdDoutLoReg <= EX_mdDoutLo;
             regAddr3Reg <= EX_regAddr3;
+            imExceptReg <= EX_imExcept;
+            ctrlExceptReg <= EX_ctrlExcept;
+            aluExceptReg <= EX_aluExcept;
+            delaySlotReg <= EX_delaySlot;
             memWriteReg <= EX_memWrite;
             memReadReg <= EX_memRead;
             memSizeReg <= EX_memSize;
@@ -105,6 +129,7 @@ module EX_MEM(
             hlWriteReg <= EX_hlWrite;
             hlDinHiSrcReg <= EX_hlDinHiSrc;
             hlDinLoSrcReg <= EX_hlDinLoSrc;
+            takeEretReg <= EX_takeEret;
         end
     end
 
@@ -116,6 +141,10 @@ module EX_MEM(
     assign MEM_mdDoutHi = mdDoutHiReg;
     assign MEM_mdDoutLo = mdDoutLoReg;
     assign MEM_regAddr3 = regAddr3Reg;
+    assign MEM_imExcept = imExceptReg;
+    assign MEM_ctrlExcept = ctrlExceptReg;
+    assign MEM_aluExcept = aluExceptReg;
+    assign MEM_delaySlot = delaySlotReg;
     assign MEM_memWrite = memWriteReg;
     assign MEM_memRead = memReadReg;
     assign MEM_memSize = memSizeReg;
@@ -126,5 +155,6 @@ module EX_MEM(
     assign MEM_hlWrite = hlWriteReg;
     assign MEM_hlDinHiSrc = hlDinHiSrcReg;
     assign MEM_hlDinLoSrc = hlDinLoSrcReg;
+    assign MEM_takeEret = takeEretReg;
 
 endmodule

@@ -17,12 +17,20 @@ module MEM_WB(
     input  [31:0] MEM_dmDout,
     input  [31:0] MEM_cp0Dout,
     input  [ 4:0] MEM_regAddr3,
+    input         MEM_imExcept,
+    input  [ 1:0] MEM_ctrlExcept,
+    input         MEM_aluExcept,
+    input         MEM_dmExcept,
+    input         MEM_delaySlot,
+    input         MEM_memWrite,
+    input         MEM_memRead,
     input         MEM_regWrite,
     input  [ 2:0] MEM_regDinSrc,
     input         MEM_cp0Write,
     input  [ 1:0] MEM_hlWrite,
     input         MEM_hlDinHiSrc,
     input         MEM_hlDinLoSrc,
+    input         MEM_takeEret,
     output [31:0] WB_pc4,
     output [31:0] WB_instr,
     output [31:0] WB_aluDout,
@@ -35,12 +43,20 @@ module MEM_WB(
     output [31:0] WB_dmDout,
     output [31:0] WB_cp0Dout,
     output [ 4:0] WB_regAddr3,
+    output        WB_imExcept,
+    output [ 1:0] WB_ctrlExcept,
+    output        WB_aluExcept,
+    output        WB_dmExcept,
+    output        WB_delaySlot,
+    output        WB_memWrite,
+    output        WB_memRead,
     output        WB_regWrite,
     output [ 2:0] WB_regDinSrc,
     output        WB_cp0Write,
     output [ 1:0] WB_hlWrite,
     output        WB_hlDinHiSrc,
-    output        WB_hlDinLoSrc
+    output        WB_hlDinLoSrc,
+    output        WB_takeEret
 );
     reg    [31:0] pc4Reg;
     reg    [31:0] instrReg;
@@ -54,12 +70,20 @@ module MEM_WB(
     reg    [31:0] dmDoutReg;
     reg    [31:0] cp0DoutReg;
     reg    [ 4:0] regAddr3Reg;
+    reg           imExceptReg;
+    reg    [ 1:0] ctrlExceptReg;
+    reg           aluExceptReg;
+    reg           dmExceptReg;
+    reg           delaySlotReg;
+    reg           memWriteReg;
+    reg           memReadReg;
     reg           regWriteReg;
     reg    [ 2:0] regDinSrcReg;
     reg           cp0WriteReg;
     reg    [ 1:0] hlWriteReg;
     reg           hlDinHiSrcReg;
     reg           hlDinLoSrcReg;
+    reg           takeEretReg;
 
     always @ (posedge clk)
     begin
@@ -78,12 +102,20 @@ module MEM_WB(
             dmDoutReg <= 0;
             cp0DoutReg <= 0;
             regAddr3Reg <= 0;
+            imExceptReg <= 0;
+            ctrlExceptReg <= 0;
+            aluExceptReg <= 0;
+            dmExceptReg <= 0;
+            delaySlotReg <= 0;
+            memWriteReg <= 0;
+            memReadReg <= 0;
             regWriteReg <= 0;
             regDinSrcReg <= 0;
             cp0WriteReg <= 0;
             hlWriteReg <= 0;
             hlDinHiSrcReg <= 0;
             hlDinLoSrcReg <= 0;
+            takeEretReg <= 0;
         end
         else if (!stall)
         begin
@@ -99,12 +131,20 @@ module MEM_WB(
             dmDoutReg <= MEM_dmDout;
             cp0DoutReg <= MEM_cp0Dout;
             regAddr3Reg <= MEM_regAddr3;
+            imExceptReg <= MEM_imExcept;
+            ctrlExceptReg <= MEM_ctrlExcept;
+            aluExceptReg <= MEM_aluExcept;
+            dmExceptReg <= MEM_dmExcept;
+            delaySlotReg <= MEM_delaySlot;
+            memWriteReg <= MEM_memWrite;
+            memReadReg <= MEM_memRead;
             regWriteReg <= MEM_regWrite;
             regDinSrcReg <= MEM_regDinSrc;
             cp0WriteReg <= MEM_cp0Write;
             hlWriteReg <= MEM_hlWrite;
             hlDinHiSrcReg <= MEM_hlDinHiSrc;
             hlDinLoSrcReg <= MEM_hlDinLoSrc;
+            takeEretReg <= MEM_takeEret;
         end
     end
 
@@ -120,11 +160,19 @@ module MEM_WB(
     assign WB_dmDout = dmDoutReg;
     assign WB_cp0Dout = cp0DoutReg;
     assign WB_regAddr3 = regAddr3Reg;
+    assign WB_imExcept = imExceptReg;
+    assign WB_ctrlExcept = ctrlExceptReg;
+    assign WB_aluExcept = aluExceptReg;
+    assign WB_dmExcept = dmExceptReg;
+    assign WB_delaySlot = delaySlotReg;
+    assign WB_memWrite = memWriteReg;
+    assign WB_memRead = memReadReg;
     assign WB_regWrite = regWriteReg;
     assign WB_regDinSrc = regDinSrcReg;
     assign WB_cp0Write = cp0WriteReg;
     assign WB_hlWrite = hlWriteReg;
     assign WB_hlDinHiSrc = hlDinHiSrcReg;
     assign WB_hlDinLoSrc = hlDinLoSrcReg;
+    assign WB_takeEret = takeEretReg;
 
 endmodule

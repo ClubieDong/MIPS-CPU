@@ -21,7 +21,7 @@ module InstructionMemory(
         else
             stall <= !stall;
     end
-    assign requireStall = stall && !exception;
+    assign requireStall = stall;
 
     assign inst_sram_en = 1;
     assign inst_sram_wen = 4'b0;
@@ -29,6 +29,6 @@ module InstructionMemory(
     assign inst_sram_wdata = 32'bX;
     
     assign exception = addr[1:0] != 2'b0;
-    assign dout = exception ? 32'bX : inst_sram_rdata;
+    assign dout = exception ? 32'b0 : inst_sram_rdata;
 
 endmodule

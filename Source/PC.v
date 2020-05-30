@@ -23,13 +23,13 @@ module PC(
     begin
         if (rst)
             pcReg <= 32'hBFC0_0000;
+        else if (takeException)
+            pcReg <= 32'hBFC0_0380;
+        else if (takeEret)
+            pcReg <= epc;
         else if (!stall)
         begin
-            if (takeException)
-                pcReg <= 32'hBFC0_0380;
-            else if (takeEret)
-                pcReg <= epc;
-            else if (takeBranch)
+            if (takeBranch)
                 pcReg <= pc + (branchImmEx << 2);
             else if (takeJumpImm)
                 pcReg <= {pc[31:28], jumpImm, 2'b0};

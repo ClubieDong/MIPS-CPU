@@ -28,7 +28,7 @@ module DataMemory(
     end
     always @ (addr, posedge memRead)
     begin
-        if (memRead)
+        if (memRead && !exception)
             stall <= 1;
     end
     assign requireStall = stall && !exception && memRead;

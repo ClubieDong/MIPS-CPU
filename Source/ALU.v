@@ -15,7 +15,8 @@ module ALU(
     assign subTemp = din1Ex - din2Ex;
     assign shift = din1[4:0];
     
-    assign exception = 
+    assign exception =
+        aluOp == 4'b1110                               ? 0 :
         aluOp == 4'b0000 && addTemp[32] != addTemp[31] ? 1 :
         aluOp == 4'b0010 && subTemp[32] != subTemp[31] ? 1 :
                                                          0 ;
