@@ -9,32 +9,26 @@ module DataMemory(
     input         memSign,
     output [31:0] dout,
     output        requireStall,
-    output        exception
+    output        exception,
+
+    output        data_sram_en,
+    output [ 3:0] data_sram_wen,
+    output [31:0] data_sram_addr,
+    output [31:0] data_sram_wdata,
+    input  [31:0] data_sram_rdata
 );
     reg           stall;
     
-    wire          data_sram_en;
-    wire   [ 3:0] data_sram_wen;
-    wire   [31:0] data_sram_addr;
-    wire   [31:0] data_sram_wdata;
-    wire   [31:0] data_sram_rdata;
-    data_ram data_ram
-    (
-        .clka(clk),
-        .ena(data_sram_en),
-        .wea(data_sram_wen),
-        .addra(data_sram_addr[17:2]),
-        .dina(data_sram_wdata),
-        .douta(data_sram_rdata)
-    );
-
     always @ (posedge clk)
     begin
         if (rst)
             stall <= 0;
         else if (stall)
             stall <= 0;
-        else if (memRead)
+    end
+    always @ (addr, posedge memRead)
+    begin
+        if (memRead)
             stall <= 1;
     end
     assign requireStall = stall && !exception && memRead;
@@ -58,7 +52,7 @@ module DataMemory(
                                  4'bX)   :
         memSize == 2'b10 ? 4'b1111 : // word
                            4'bX    ;
-    assign data_sram_addr = addr;
+    assign data_sram_addr = {3'b0, addr[28:0]};
     assign data_sram_wdata = !memWrite ? 32'bX :
         memSize == 2'b00 ?        // byte
            (addr[1:0] == 2'b00 ? {8'bX    , 8'bX    , 8'bX    , din[7:0]} :

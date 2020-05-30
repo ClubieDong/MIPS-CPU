@@ -22,7 +22,10 @@ module CP0(
             regs[addrW] <= din;
     end
 
-    assign dout = selR[2:0] == 0 ? regs[addrR] : 32'bX;
-    assign epc = regs[14];
+    assign dout = 
+        selR[2:0] != 0                             ? 32'bX       :
+        addrW == addrR && selR == selW && cp0Write ? din         : 
+                                                      regs[addrR];
+    assign epc = addrW == 14 && selW == 0 && cp0Write ? din : regs[14];
 
 endmodule

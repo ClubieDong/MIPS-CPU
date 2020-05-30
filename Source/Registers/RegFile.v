@@ -24,7 +24,7 @@ module RegFile(
             regs[addr3] <= din;
     end
 
-    assign dout1 = regs[addr1];
-    assign dout2 = regs[addr2];
+    assign dout1 = addr1 == addr3 && regWrite ? din : regs[addr1];
+    assign dout2 = addr2 == addr3 && regWrite ? din : regs[addr2];
 
 endmodule

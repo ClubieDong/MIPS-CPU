@@ -30,9 +30,9 @@ module PC(
             else if (takeEret)
                 pcReg <= epc;
             else if (takeBranch)
-                pcReg <= pc4 + (branchImmEx << 2);
+                pcReg <= pc + (branchImmEx << 2);
             else if (takeJumpImm)
-                pcReg <= {pc4[31:28], jumpImm, 2'b0};
+                pcReg <= {pc[31:28], jumpImm, 2'b0};
             else if (takeJumpReg)
                 pcReg <= jumpReg;
             else

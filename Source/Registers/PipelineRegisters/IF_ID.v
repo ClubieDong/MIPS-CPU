@@ -15,9 +15,10 @@ module IF_ID(
 
     always @ (posedge clk)
     begin
+        if (rst)
+            pc4Reg <= 0;
         if (rst || flush)
         begin
-            pc4Reg <= 0;
             instrReg <= 0;
         end
         else if (!stall)

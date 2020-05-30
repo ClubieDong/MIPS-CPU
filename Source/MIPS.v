@@ -1,7 +1,26 @@
-module MIPS(
+module mycpu_top(
     input         clk,
-    input         rst
+    input         resetn,
+    input  [ 5:0] int,
+
+    output        inst_sram_en,   
+    output [ 3:0] inst_sram_wen,
+    output [31:0] inst_sram_addr,
+    output [31:0] inst_sram_wdata,
+    input  [31:0] inst_sram_rdata,
+
+    output        data_sram_en,
+    output [ 3:0] data_sram_wen,
+    output [31:0] data_sram_addr,
+    output [31:0] data_sram_wdata,
+    input  [31:0] data_sram_rdata,
+
+    output [31:0] debug_wb_pc,
+    output [ 3:0] debug_wb_rf_wen,
+    output [ 4:0] debug_wb_rf_wnum,
+    output [31:0] debug_wb_rf_wdata
 );
+    wire          rst;
     wire   [31:0] epc;
     // Stall and flush
     wire          imRequireStall;
@@ -117,10 +136,17 @@ module MIPS(
     wire          WB_regWrite;
     wire   [ 2:0] WB_regDinSrc;
     wire   [ 4:0] WB_regAddr3;
+    wire   [31:0] WB_regDin;
     wire          WB_cp0Write;
     wire   [ 1:0] WB_hlWrite;
     wire          WB_hlDinHiSrc;
     wire          WB_hlDinLoSrc;
+
+    assign rst = !resetn;
+    assign debug_wb_pc = WB_pc4 - 4;
+    assign debug_wb_rf_wen = {4{WB_regWrite}};
+    assign debug_wb_rf_wnum = WB_regAddr3;
+    assign debug_wb_rf_wdata = WB_regDin;
 
     PipelineControl PipelineControl
     (
@@ -160,12 +186,17 @@ module MIPS(
 
     InstructionMemory InstructionMemory
     (
-        .clk          (clk           ), // input        
-        .rst          (rst           ), // input        
-        .addr         (IF_pc         ), // input  [31:0]
-        .dout         (IF_instr      ), // output [31:0]
-        .requireStall (imRequireStall), // output  
-        .exception    (IF_imExcept   )  // output       
+        .clk            (clk            ), // input        
+        .rst            (rst            ), // input        
+        .addr           (IF_pc          ), // input  [31:0]
+        .dout           (IF_instr       ), // output [31:0]
+        .requireStall   (imRequireStall ), // output  
+        .exception      (IF_imExcept    ), // output       
+        .inst_sram_en   (inst_sram_en   ),
+        .inst_sram_wen  (inst_sram_wen  ),
+        .inst_sram_addr (inst_sram_addr ),
+        .inst_sram_wdata(inst_sram_wdata),
+        .inst_sram_rdata(inst_sram_rdata)
     );
 
     IF_ID IF_ID
@@ -207,10 +238,9 @@ module MIPS(
         .Exception   (ID_ctrlExcept )  // output [ 1:0]
     );
 
-    wire   [31:0] regDin;
     wire   [31:0] fwdFromEX;
     wire   [31:0] fwdFromMEM;
-    assign regDin = 
+    assign WB_regDin = 
         WB_regDinSrc == 3'b000 ? WB_aluDout  :
         WB_regDinSrc == 3'b001 ? WB_pc4 + 4  :
         WB_regDinSrc == 3'b010 ? WB_hlDoutHi :
@@ -225,7 +255,7 @@ module MIPS(
         .addr1    (ID_instr[25:21]  ), // input  [ 4:0]
         .addr2    (ID_instr[20:16]  ), // input  [ 4:0]
         .addr3    (WB_regAddr3      ), // input  [ 4:0]
-        .din      (regDin           ), // input  [31:0]
+        .din      (WB_regDin        ), // input  [31:0]
         .regWrite (WB_regWrite      ), // input        
         .dout1    (ID_regDout1_unfwd), // output [31:0]
         .dout2    (ID_regDout2_unfwd)  // output [31:0]
@@ -247,14 +277,15 @@ module MIPS(
         MEM_regDinSrc == 3'b101 ? MEM_cp0Dout  :
                                   32'bX        ; // invalid
     assign ID_regDout1 = 
-         EX_regWrite == 1 &&  EX_regAddr3 == ID_instr[25:21] ? fwdFromEX         :
-        MEM_regWrite == 1 && MEM_regAddr3 == ID_instr[25:21] ? fwdFromMEM        :
-                                                               ID_regDout1_unfwd ; // no need to forward
+         EX_regWrite == 1 &&  EX_regAddr3 == ID_instr[25:21] &&  EX_regAddr3 != 0 ? fwdFromEX         :
+        MEM_regWrite == 1 && MEM_regAddr3 == ID_instr[25:21] && MEM_regAddr3 != 0 ? fwdFromMEM        :
+                                                                                    ID_regDout1_unfwd ; // no need to forward
     assign ID_regDout2 = 
-         EX_regWrite == 1 &&  EX_regAddr3 == ID_instr[20:16] ? fwdFromEX         :
-        MEM_regWrite == 1 && MEM_regAddr3 == ID_instr[20:16] ? fwdFromMEM        :
-                                                               ID_regDout2_unfwd ; // no need to forward
+         EX_regWrite == 1 &&  EX_regAddr3 == ID_instr[20:16] &&  EX_regAddr3 != 0 ? fwdFromEX         :
+        MEM_regWrite == 1 && MEM_regAddr3 == ID_instr[20:16] && MEM_regAddr3 != 0 ? fwdFromMEM        :
+                                                                                    ID_regDout2_unfwd ; // no need to forward
     assign fwdRequireStall = EX_regWrite == 1
+        && EX_regAddr3 != 0
         && (EX_regAddr3 == ID_instr[25:21] || EX_regAddr3 == ID_instr[20:16])
         && (EX_regDinSrc == 3'b010 || EX_regDinSrc == 3'b011 || EX_regDinSrc == 3'b100 || EX_regDinSrc == 3'b101);
 
@@ -395,17 +426,22 @@ module MIPS(
 
     DataMemory DataMemory
     (
-        .clk          (clk           ), // input        
-        .rst          (rst           ), // input        
-        .addr         (MEM_aluDout   ), // input  [31:0]
-        .din          (MEM_regDout2  ), // input  [31:0]
-        .memWrite     (MEM_memWrite  ), // input        
-        .memRead      (MEM_memRead   ), // input        
-        .memSize      (MEM_memSize   ), // input  [ 1:0]
-        .memSign      (MEM_memSign   ), // input        
-        .dout         (MEM_dmDout    ), // output [31:0]
-        .requireStall (dmRequireStall), // output       
-        .exception    (MEM_dmExcept  )  // output       
+        .clk             (clk            ), // input        
+        .rst             (rst            ), // input        
+        .addr            (MEM_aluDout    ), // input  [31:0]
+        .din             (MEM_regDout2   ), // input  [31:0]
+        .memWrite        (MEM_memWrite   ), // input        
+        .memRead         (MEM_memRead    ), // input        
+        .memSize         (MEM_memSize    ), // input  [ 1:0]
+        .memSign         (MEM_memSign    ), // input        
+        .dout            (MEM_dmDout     ), // output [31:0]
+        .requireStall    (dmRequireStall ), // output       
+        .exception       (MEM_dmExcept   ), // output       
+        .data_sram_en    (data_sram_en   ),
+        .data_sram_wen   (data_sram_wen  ),
+        .data_sram_addr  (data_sram_addr ),
+        .data_sram_wdata (data_sram_wdata),
+        .data_sram_rdata  (data_sram_rdata)
     );
 
     CP0 CP0

@@ -69,9 +69,10 @@ module ID_EX(
 
     always @ (posedge clk)
     begin
+        if (rst)
+            pc4Reg <= 0;
         if (rst || flush)
         begin
-            pc4Reg <= 0;
             instrReg <= 0;
             regDout1Reg <= 0;
             regDout2Reg <= 0;

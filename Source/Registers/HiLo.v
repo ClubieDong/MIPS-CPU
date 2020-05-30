@@ -25,7 +25,7 @@ module HiLo(
         end
     end
 
-    assign doutHi = hiReg;
-    assign doutLo = loReg;
+    assign doutHi = hlWrite ? dinHi : hiReg;
+    assign doutLo = hlWrite ? dinLo : loReg;
 
 endmodule
