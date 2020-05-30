@@ -10,6 +10,7 @@ module ID_EX(
     input  [31:0] ID_regDout1,
     input  [31:0] ID_regDout2,
     input  [31:0] ID_immEx,
+    input  [ 4:0] ID_regAddr3,
     input  [ 3:0] ID_aluOp,
     input         ID_aluDin1Src,
     input         ID_aluDin2Src,
@@ -19,7 +20,6 @@ module ID_EX(
     input  [ 1:0] ID_memSize,
     input         ID_memSign,
     input         ID_regWrite,
-    input  [ 1:0] ID_regAddr3Src,
     input  [ 2:0] ID_regDinSrc,
     input         ID_cp0Write,
     input  [ 1:0] ID_hlWrite,
@@ -30,6 +30,7 @@ module ID_EX(
     output [31:0] EX_regDout1,
     output [31:0] EX_regDout2,
     output [31:0] EX_immEx,
+    output [ 4:0] EX_regAddr3,
     output [ 3:0] EX_aluOp,
     output        EX_aluDin1Src,
     output        EX_aluDin2Src,
@@ -39,7 +40,6 @@ module ID_EX(
     output [ 1:0] EX_memSize,
     output        EX_memSign,
     output        EX_regWrite,
-    output [ 1:0] EX_regAddr3Src,
     output [ 2:0] EX_regDinSrc,
     output        EX_cp0Write,
     output [ 1:0] EX_hlWrite,
@@ -51,6 +51,7 @@ module ID_EX(
     reg    [31:0] regDout1Reg;
     reg    [31:0] regDout2Reg;
     reg    [31:0] immExReg;
+    reg    [ 4:0] regAddr3Reg;
     reg    [ 3:0] aluOpReg;
     reg           aluDin1SrcReg;
     reg           aluDin2SrcReg;
@@ -60,7 +61,6 @@ module ID_EX(
     reg    [ 1:0] memSizeReg;
     reg           memSignReg;
     reg           regWriteReg;
-    reg    [ 1:0] regAddr3SrcReg;
     reg    [ 2:0] regDinSrcReg;
     reg           cp0WriteReg;
     reg    [ 1:0] hlWriteReg;
@@ -69,36 +69,14 @@ module ID_EX(
 
     always @ (posedge clk)
     begin
-        if (rst)
-        begin
-            pc4Reg <= 32'bX;
-            instrReg <= 32'bX;
-            regDout1Reg <= 32'bX;
-            regDout2Reg <= 32'bX;
-            immExReg <= 32'bX;
-            aluOpReg <= 32'bX;
-            aluDin1SrcReg <= 32'bX;
-            aluDin2SrcReg <= 32'bX;
-            mdOpReg <= 32'bX;
-            memWriteReg <= 32'bX;
-            memReadReg <= 32'bX;
-            memSizeReg <= 32'bX;
-            memSignReg <= 32'bX;
-            regWriteReg <= 32'bX;
-            regAddr3SrcReg <= 32'bX;
-            regDinSrcReg <= 32'bX;
-            cp0WriteReg <= 32'bX;
-            hlWriteReg <= 32'bX;
-            hlDinHiSrcReg <= 32'bX;
-            hlDinLoSrcReg <= 32'bX;
-        end
-        else if (flush)
+        if (rst || flush)
         begin
             pc4Reg <= 0;
             instrReg <= 0;
             regDout1Reg <= 0;
             regDout2Reg <= 0;
             immExReg <= 0;
+            regAddr3Reg <= 0;
             aluOpReg <= 0;
             aluDin1SrcReg <= 0;
             aluDin2SrcReg <= 0;
@@ -108,7 +86,6 @@ module ID_EX(
             memSizeReg <= 0;
             memSignReg <= 0;
             regWriteReg <= 0;
-            regAddr3SrcReg <= 0;
             regDinSrcReg <= 0;
             cp0WriteReg <= 0;
             hlWriteReg <= 0;
@@ -122,6 +99,7 @@ module ID_EX(
             regDout1Reg <= ID_regDout1;
             regDout2Reg <= ID_regDout2;
             immExReg <= ID_immEx;
+            regAddr3Reg <= ID_regAddr3;
             aluOpReg <= ID_aluOp;
             aluDin1SrcReg <= ID_aluDin1Src;
             aluDin2SrcReg <= ID_aluDin2Src;
@@ -131,7 +109,6 @@ module ID_EX(
             memSizeReg <= ID_memSize;
             memSignReg <= ID_memSign;
             regWriteReg <= ID_regWrite;
-            regAddr3SrcReg <= ID_regAddr3Src;
             regDinSrcReg <= ID_regDinSrc;
             cp0WriteReg <= ID_cp0Write;
             hlWriteReg <= ID_hlWrite;
@@ -145,6 +122,7 @@ module ID_EX(
     assign EX_regDout1 = regDout1Reg;
     assign EX_regDout2 = regDout2Reg;
     assign EX_immEx = immExReg;
+    assign EX_regAddr3 = regAddr3Reg;
     assign EX_aluOp = aluOpReg;
     assign EX_aluDin1Src = aluDin1SrcReg;
     assign EX_aluDin2Src = aluDin2SrcReg;
@@ -154,7 +132,6 @@ module ID_EX(
     assign EX_memSize = memSizeReg;
     assign EX_memSign = memSignReg;
     assign EX_regWrite = regWriteReg;
-    assign EX_regAddr3Src = regAddr3SrcReg;
     assign EX_regDinSrc = regDinSrcReg;
     assign EX_cp0Write = cp0WriteReg;
     assign EX_hlWrite = hlWriteReg;

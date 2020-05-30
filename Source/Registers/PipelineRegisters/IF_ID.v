@@ -15,12 +15,7 @@ module IF_ID(
 
     always @ (posedge clk)
     begin
-        if (rst)
-        begin
-            pc4Reg <= 32'bX;
-            instrReg <= 32'bX;
-        end
-        else if (flush)
+        if (rst || flush)
         begin
             pc4Reg <= 0;
             instrReg <= 0;

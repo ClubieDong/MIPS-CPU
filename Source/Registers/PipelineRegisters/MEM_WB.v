@@ -16,8 +16,8 @@ module MEM_WB(
     input  [31:0] MEM_hlDoutLo,
     input  [31:0] MEM_dmDout,
     input  [31:0] MEM_cp0Dout,
+    input  [ 4:0] MEM_regAddr3,
     input         MEM_regWrite,
-    input  [ 1:0] MEM_regAddr3Src,
     input  [ 2:0] MEM_regDinSrc,
     input         MEM_cp0Write,
     input  [ 1:0] MEM_hlWrite,
@@ -34,8 +34,8 @@ module MEM_WB(
     output [31:0] WB_hlDoutLo,
     output [31:0] WB_dmDout,
     output [31:0] WB_cp0Dout,
+    output [ 4:0] WB_regAddr3,
     output        WB_regWrite,
-    output [ 1:0] WB_regAddr3Src,
     output [ 2:0] WB_regDinSrc,
     output        WB_cp0Write,
     output [ 1:0] WB_hlWrite,
@@ -53,8 +53,8 @@ module MEM_WB(
     reg    [31:0] hlDoutLoReg;
     reg    [31:0] dmDoutReg;
     reg    [31:0] cp0DoutReg;
+    reg    [ 4:0] regAddr3Reg;
     reg           regWriteReg;
-    reg    [ 1:0] regAddr3SrcReg;
     reg    [ 2:0] regDinSrcReg;
     reg           cp0WriteReg;
     reg    [ 1:0] hlWriteReg;
@@ -63,28 +63,7 @@ module MEM_WB(
 
     always @ (posedge clk)
     begin
-        if (rst)
-        begin
-            pc4Reg <= 32'bX;
-            instrReg <= 32'bX;
-            aluDoutReg <= 32'bX;
-            regDout1Reg <= 32'bX;
-            regDout2Reg <= 32'bX;
-            mdDoutHiReg <= 32'bX;
-            mdDoutLoReg <= 32'bX;
-            hlDoutHiReg <= 32'bX;
-            hlDoutLoReg <= 32'bX;
-            dmDoutReg <= 32'bX;
-            cp0DoutReg <= 32'bX;
-            regWriteReg <= 32'bX;
-            regAddr3SrcReg <= 32'bX;
-            regDinSrcReg <= 32'bX;
-            cp0WriteReg <= 32'bX;
-            hlWriteReg <= 32'bX;
-            hlDinHiSrcReg <= 32'bX;
-            hlDinLoSrcReg <= 32'bX;
-        end
-        else if (flush)
+        if (rst || flush)
         begin
             pc4Reg <= 0;
             instrReg <= 0;
@@ -97,8 +76,8 @@ module MEM_WB(
             hlDoutLoReg <= 0;
             dmDoutReg <= 0;
             cp0DoutReg <= 0;
+            regAddr3Reg <= 0;
             regWriteReg <= 0;
-            regAddr3SrcReg <= 0;
             regDinSrcReg <= 0;
             cp0WriteReg <= 0;
             hlWriteReg <= 0;
@@ -118,8 +97,8 @@ module MEM_WB(
             hlDoutLoReg <= MEM_hlDoutLo;
             dmDoutReg <= MEM_dmDout;
             cp0DoutReg <= MEM_cp0Dout;
+            regAddr3Reg <= MEM_regAddr3;
             regWriteReg <= MEM_regWrite;
-            regAddr3SrcReg <= MEM_regAddr3Src;
             regDinSrcReg <= MEM_regDinSrc;
             cp0WriteReg <= MEM_cp0Write;
             hlWriteReg <= MEM_hlWrite;
@@ -139,8 +118,8 @@ module MEM_WB(
     assign WB_hlDoutLo = hlDoutLoReg;
     assign WB_dmDout = dmDoutReg;
     assign WB_cp0Dout = cp0DoutReg;
+    assign WB_regAddr3 = regAddr3Reg;
     assign WB_regWrite = regWriteReg;
-    assign WB_regAddr3Src = regAddr3SrcReg;
     assign WB_regDinSrc = regDinSrcReg;
     assign WB_cp0Write = cp0WriteReg;
     assign WB_hlWrite = hlWriteReg;

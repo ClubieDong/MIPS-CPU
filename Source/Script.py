@@ -43,12 +43,7 @@ def GeneratePipelineReg(stage1, stage2, signals):
     lines.append(f"")
     lines.append(f"    always @ (posedge clk)")
     lines.append(f"    begin")
-    lines.append(f"        if (rst)")
-    lines.append(f"        begin")
-    for i in signals:
-        lines.append(f"            {i[0]}Reg <= 32'bX;")
-    lines.append(f"        end")
-    lines.append(f"        else if (flush)")
+    lines.append(f"        if (rst || flush)")
     lines.append(f"        begin")
     for i in signals:
         lines.append(f"            {i[0]}Reg <= 0;")

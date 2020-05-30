@@ -5,6 +5,7 @@ module MIPS(
     wire   [31:0] epc;
     // Stall and flush
     wire          imRequireStall;
+    wire          fwdRequireStall;
     wire          dmRequireStall;
     wire          PC_stall;
     wire          IF_ID_stall;
@@ -40,11 +41,14 @@ module MIPS(
     wire          ID_regWrite;
     wire   [ 1:0] ID_regAddr3Src;
     wire   [ 2:0] ID_regDinSrc;
+    wire   [ 4:0] ID_regAddr3;
     wire          ID_cp0Write;
     wire   [ 1:0] ID_hlWrite;
     wire          ID_hlDinHiSrc;
     wire          ID_hlDinLoSrc;
     wire   [ 1:0] ID_ctrlExcept;
+    wire   [31:0] ID_regDout1_unfwd;
+    wire   [31:0] ID_regDout2_unfwd;
     wire   [31:0] ID_regDout1;
     wire   [31:0] ID_regDout2;
     wire          ID_takeBranch;
@@ -64,8 +68,8 @@ module MIPS(
     wire   [ 1:0] EX_memSize;
     wire          EX_memSign;
     wire          EX_regWrite;
-    wire   [ 1:0] EX_regAddr3Src;
     wire   [ 2:0] EX_regDinSrc;
+    wire   [ 4:0] EX_regAddr3;
     wire          EX_cp0Write;
     wire   [ 1:0] EX_hlWrite;
     wire          EX_hlDinHiSrc;
@@ -87,8 +91,8 @@ module MIPS(
     wire   [ 1:0] MEM_memSize;
     wire          MEM_memSign;
     wire          MEM_regWrite;
-    wire   [ 1:0] MEM_regAddr3Src;
     wire   [ 2:0] MEM_regDinSrc;
+    wire   [ 4:0] MEM_regAddr3;
     wire          MEM_cp0Write;
     wire   [ 1:0] MEM_hlWrite;
     wire          MEM_hlDinHiSrc;
@@ -111,8 +115,8 @@ module MIPS(
     wire   [31:0] WB_dmDout;
     wire   [31:0] WB_cp0Dout;
     wire          WB_regWrite;
-    wire   [ 1:0] WB_regAddr3Src;
     wire   [ 2:0] WB_regDinSrc;
+    wire   [ 4:0] WB_regAddr3;
     wire          WB_cp0Write;
     wire   [ 1:0] WB_hlWrite;
     wire          WB_hlDinHiSrc;
@@ -120,20 +124,20 @@ module MIPS(
 
     PipelineControl PipelineControl
     (
-        .IF_requireStall  (0             ), // input        
-        .ID_requireStall  (imRequireStall), // input        
-        .EX_requireStall  (0             ), // input        
-        .MEM_requireStall (dmRequireStall), // input        
-        .WB_requireStall  (0             ), // input        
-        .PC_stall         (PC_stall      ), // output       
-        .IF_ID_stall      (IF_ID_stall   ), // output       
-        .ID_EX_stall      (ID_EX_stall   ), // output       
-        .EX_MEM_stall     (EX_MEM_stall  ), // output       
-        .MEM_WB_stall     (MEM_WB_stall  ), // output       
-        .IF_ID_flush      (IF_ID_flush   ), // output       
-        .ID_EX_flush      (ID_EX_flush   ), // output       
-        .EX_MEM_flush     (EX_MEM_flush  ), // output       
-        .MEM_WB_flush     (MEM_WB_flush  )  // output       
+        .IF_requireStall  (0                                ), // input        
+        .ID_requireStall  (imRequireStall || fwdRequireStall), // input        
+        .EX_requireStall  (0                                ), // input        
+        .MEM_requireStall (dmRequireStall                   ), // input        
+        .WB_requireStall  (0                                ), // input        
+        .PC_stall         (PC_stall                         ), // output       
+        .IF_ID_stall      (IF_ID_stall                      ), // output       
+        .ID_EX_stall      (ID_EX_stall                      ), // output       
+        .EX_MEM_stall     (EX_MEM_stall                     ), // output       
+        .MEM_WB_stall     (MEM_WB_stall                     ), // output       
+        .IF_ID_flush      (IF_ID_flush                      ), // output       
+        .ID_EX_flush      (ID_EX_flush                      ), // output       
+        .EX_MEM_flush     (EX_MEM_flush                     ), // output       
+        .MEM_WB_flush     (MEM_WB_flush                     )  // output       
     );
 
     PC PC
@@ -203,13 +207,9 @@ module MIPS(
         .Exception   (ID_ctrlExcept )  // output [ 1:0]
     );
 
-    wire   [ 4:0] regAddr3;
     wire   [31:0] regDin;
-    assign regAddr3 =
-        WB_regAddr3Src == 2'b00 ? WB_instr[15:11] : // rd field
-        WB_regAddr3Src == 2'b01 ? WB_instr[20:16] : // rt field
-        WB_regAddr3Src == 2'b10 ? 31              : // jal/bgezal/bltzal
-                                  5'bX            ;
+    wire   [31:0] fwdFromEX;
+    wire   [31:0] fwdFromMEM;
     assign regDin = 
         WB_regDinSrc == 3'b000 ? WB_aluDout  :
         WB_regDinSrc == 3'b001 ? WB_pc4 + 4  :
@@ -220,16 +220,43 @@ module MIPS(
                                  32'bX       ;
     RegFile RegFile
     (
-        .clk      (clk            ), // input        
-        .rst      (rst            ), // input        
-        .addr1    (ID_instr[25:21]), // input  [ 4:0]
-        .addr2    (ID_instr[20:16]), // input  [ 4:0]
-        .addr3    (regAddr3       ), // input  [ 4:0]
-        .din      (regDin         ), // input  [31:0]
-        .regWrite (WB_regWrite    ), // input        
-        .dout1    (ID_regDout1    ), // output [31:0]
-        .dout2    (ID_regDout2    )  // output [31:0]
+        .clk      (clk              ), // input        
+        .rst      (rst              ), // input        
+        .addr1    (ID_instr[25:21]  ), // input  [ 4:0]
+        .addr2    (ID_instr[20:16]  ), // input  [ 4:0]
+        .addr3    (WB_regAddr3      ), // input  [ 4:0]
+        .din      (regDin           ), // input  [31:0]
+        .regWrite (WB_regWrite      ), // input        
+        .dout1    (ID_regDout1_unfwd), // output [31:0]
+        .dout2    (ID_regDout2_unfwd)  // output [31:0]
     );
+    assign fwdFromEX = 
+        EX_regDinSrc == 3'b000 ? EX_aluDout :
+        EX_regDinSrc == 3'b001 ? EX_pc4 + 4 :
+        EX_regDinSrc == 3'b010 ? 32'bX      : // not available yet
+        EX_regDinSrc == 3'b011 ? 32'bX      : // not available yet
+        EX_regDinSrc == 3'b100 ? 32'bX      : // not available yet
+        EX_regDinSrc == 3'b101 ? 32'bX      : // not available yet
+                                 32'bX      ; // invalid
+    assign fwdFromMEM = 
+        MEM_regDinSrc == 3'b000 ? MEM_aluDout  :
+        MEM_regDinSrc == 3'b001 ? MEM_pc4 + 4  :
+        MEM_regDinSrc == 3'b010 ? MEM_hlDoutHi :
+        MEM_regDinSrc == 3'b011 ? MEM_hlDoutLo :
+        MEM_regDinSrc == 3'b100 ? MEM_dmDout   :
+        MEM_regDinSrc == 3'b101 ? MEM_cp0Dout  :
+                                  32'bX        ; // invalid
+    assign ID_regDout1 = 
+         EX_regWrite == 1 &&  EX_regAddr3 == ID_instr[25:21] ? fwdFromEX         :
+        MEM_regWrite == 1 && MEM_regAddr3 == ID_instr[25:21] ? fwdFromMEM        :
+                                                               ID_regDout1_unfwd ; // no need to forward
+    assign ID_regDout2 = 
+         EX_regWrite == 1 &&  EX_regAddr3 == ID_instr[20:16] ? fwdFromEX         :
+        MEM_regWrite == 1 && MEM_regAddr3 == ID_instr[20:16] ? fwdFromMEM        :
+                                                               ID_regDout2_unfwd ; // no need to forward
+    assign fwdRequireStall = EX_regWrite == 1
+        && (EX_regAddr3 == ID_instr[25:21] || EX_regAddr3 == ID_instr[20:16])
+        && (EX_regDinSrc == 3'b010 || EX_regDinSrc == 3'b011 || EX_regDinSrc == 3'b100 || EX_regDinSrc == 3'b101);
 
     Branch Branch
     (
@@ -247,6 +274,11 @@ module MIPS(
         .dout    (ID_immEx      )  // output [31:0]
     );
 
+    assign ID_regAddr3 =
+        ID_regAddr3Src == 2'b00 ? ID_instr[15:11] : // rd field
+        ID_regAddr3Src == 2'b01 ? ID_instr[20:16] : // rt field
+        ID_regAddr3Src == 2'b10 ? 31              : // jal/bgezal/bltzal
+                                  5'bX            ;
     ID_EX ID_EX
     (
         .clk            (clk           ), // input        
@@ -258,6 +290,7 @@ module MIPS(
         .ID_regDout1    (ID_regDout1   ), // input  [31:0]
         .ID_regDout2    (ID_regDout2   ), // input  [31:0]
         .ID_immEx       (ID_immEx      ), // input  [31:0]
+        .ID_regAddr3    (ID_regAddr3   ), // input  [ 4:0]
         .ID_aluOp       (ID_aluOp      ), // input  [ 3:0]
         .ID_aluDin1Src  (ID_aluDin1Src ), // input        
         .ID_aluDin2Src  (ID_aluDin2Src ), // input        
@@ -267,7 +300,6 @@ module MIPS(
         .ID_memSize     (ID_memSize    ), // input  [ 1:0]
         .ID_memSign     (ID_memSign    ), // input        
         .ID_regWrite    (ID_regWrite   ), // input        
-        .ID_regAddr3Src (ID_regAddr3Src), // input  [ 1:0]
         .ID_regDinSrc   (ID_regDinSrc  ), // input  [ 2:0]
         .ID_cp0Write    (ID_cp0Write   ), // input        
         .ID_hlWrite     (ID_hlWrite    ), // input  [ 1:0]
@@ -278,6 +310,7 @@ module MIPS(
         .EX_regDout1    (EX_regDout1   ), // output [31:0]
         .EX_regDout2    (EX_regDout2   ), // output [31:0]
         .EX_immEx       (EX_immEx      ), // output [31:0]
+        .EX_regAddr3    (EX_regAddr3   ), // output [ 4:0]
         .EX_aluOp       (EX_aluOp      ), // output [ 3:0]
         .EX_aluDin1Src  (EX_aluDin1Src ), // output       
         .EX_aluDin2Src  (EX_aluDin2Src ), // output       
@@ -287,7 +320,6 @@ module MIPS(
         .EX_memSize     (EX_memSize    ), // output [ 1:0]
         .EX_memSign     (EX_memSign    ), // output       
         .EX_regWrite    (EX_regWrite   ), // output       
-        .EX_regAddr3Src (EX_regAddr3Src), // output [ 1:0]
         .EX_regDinSrc   (EX_regDinSrc  ), // output [ 2:0]
         .EX_cp0Write    (EX_cp0Write   ), // output       
         .EX_hlWrite     (EX_hlWrite    ), // output [ 1:0]
@@ -330,12 +362,12 @@ module MIPS(
         .EX_regDout2     (EX_regDout2    ), // input  [31:0]
         .EX_mdDoutHi     (EX_mdDoutHi    ), // input  [31:0]
         .EX_mdDoutLo     (EX_mdDoutLo    ), // input  [31:0]
+        .EX_regAddr3     (EX_regAddr3    ), // input  [ 4:0]
         .EX_memWrite     (EX_memWrite    ), // input        
         .EX_memRead      (EX_memRead     ), // input        
         .EX_memSize      (EX_memSize     ), // input  [ 1:0]
         .EX_memSign      (EX_memSign     ), // input        
         .EX_regWrite     (EX_regWrite    ), // input        
-        .EX_regAddr3Src  (EX_regAddr3Src ), // input  [ 1:0]
         .EX_regDinSrc    (EX_regDinSrc   ), // input  [ 2:0]
         .EX_cp0Write     (EX_cp0Write    ), // input        
         .EX_hlWrite      (EX_hlWrite     ), // input  [ 1:0]
@@ -348,12 +380,12 @@ module MIPS(
         .MEM_regDout2    (MEM_regDout2   ), // output [31:0]
         .MEM_mdDoutHi    (MEM_mdDoutHi   ), // output [31:0]
         .MEM_mdDoutLo    (MEM_mdDoutLo   ), // output [31:0]
+        .MEM_regAddr3    (MEM_regAddr3   ), // output [ 4:0]
         .MEM_memWrite    (MEM_memWrite   ), // output       
         .MEM_memRead     (MEM_memRead    ), // output       
         .MEM_memSize     (MEM_memSize    ), // output [ 1:0]
         .MEM_memSign     (MEM_memSign    ), // output       
         .MEM_regWrite    (MEM_regWrite   ), // output       
-        .MEM_regAddr3Src (MEM_regAddr3Src), // output [ 1:0]
         .MEM_regDinSrc   (MEM_regDinSrc  ), // output [ 2:0]
         .MEM_cp0Write    (MEM_cp0Write   ), // output       
         .MEM_hlWrite     (MEM_hlWrite    ), // output [ 1:0]
@@ -422,8 +454,8 @@ module MIPS(
         .MEM_hlDoutLo    (MEM_hlDoutLo   ), // input  [31:0]
         .MEM_dmDout      (MEM_dmDout     ), // input  [31:0]
         .MEM_cp0Dout     (MEM_cp0Dout    ), // input  [31:0]
+        .MEM_regAddr3    (MEM_regAddr3   ), // input  [ 4:0]
         .MEM_regWrite    (MEM_regWrite   ), // input        
-        .MEM_regAddr3Src (MEM_regAddr3Src), // input  [ 1:0]
         .MEM_regDinSrc   (MEM_regDinSrc  ), // input  [ 2:0]
         .MEM_cp0Write    (MEM_cp0Write   ), // input        
         .MEM_hlWrite     (MEM_hlWrite    ), // input  [ 1:0]
@@ -440,8 +472,8 @@ module MIPS(
         .WB_hlDoutLo     (WB_hlDoutLo    ), // output [31:0]
         .WB_dmDout       (WB_dmDout      ), // output [31:0]
         .WB_cp0Dout      (WB_cp0Dout     ), // output [31:0]
+        .WB_regAddr3     (WB_regAddr3    ), // output [ 4:0]
         .WB_regWrite     (WB_regWrite    ), // output       
-        .WB_regAddr3Src  (WB_regAddr3Src ), // output [ 1:0]
         .WB_regDinSrc    (WB_regDinSrc   ), // output [ 2:0]
         .WB_cp0Write     (WB_cp0Write    ), // output       
         .WB_hlWrite      (WB_hlWrite     ), // output [ 1:0]

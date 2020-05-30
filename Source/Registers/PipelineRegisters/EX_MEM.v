@@ -12,12 +12,12 @@ module EX_MEM(
     input  [31:0] EX_regDout2,
     input  [31:0] EX_mdDoutHi,
     input  [31:0] EX_mdDoutLo,
+    input  [ 4:0] EX_regAddr3,
     input         EX_memWrite,
     input         EX_memRead,
     input  [ 1:0] EX_memSize,
     input         EX_memSign,
     input         EX_regWrite,
-    input  [ 1:0] EX_regAddr3Src,
     input  [ 2:0] EX_regDinSrc,
     input         EX_cp0Write,
     input  [ 1:0] EX_hlWrite,
@@ -30,12 +30,12 @@ module EX_MEM(
     output [31:0] MEM_regDout2,
     output [31:0] MEM_mdDoutHi,
     output [31:0] MEM_mdDoutLo,
+    output [ 4:0] MEM_regAddr3,
     output        MEM_memWrite,
     output        MEM_memRead,
     output [ 1:0] MEM_memSize,
     output        MEM_memSign,
     output        MEM_regWrite,
-    output [ 1:0] MEM_regAddr3Src,
     output [ 2:0] MEM_regDinSrc,
     output        MEM_cp0Write,
     output [ 1:0] MEM_hlWrite,
@@ -49,12 +49,12 @@ module EX_MEM(
     reg    [31:0] regDout2Reg;
     reg    [31:0] mdDoutHiReg;
     reg    [31:0] mdDoutLoReg;
+    reg    [ 4:0] regAddr3Reg;
     reg           memWriteReg;
     reg           memReadReg;
     reg    [ 1:0] memSizeReg;
     reg           memSignReg;
     reg           regWriteReg;
-    reg    [ 1:0] regAddr3SrcReg;
     reg    [ 2:0] regDinSrcReg;
     reg           cp0WriteReg;
     reg    [ 1:0] hlWriteReg;
@@ -63,28 +63,7 @@ module EX_MEM(
 
     always @ (posedge clk)
     begin
-        if (rst)
-        begin
-            pc4Reg <= 32'bX;
-            instrReg <= 32'bX;
-            aluDoutReg <= 32'bX;
-            regDout1Reg <= 32'bX;
-            regDout2Reg <= 32'bX;
-            mdDoutHiReg <= 32'bX;
-            mdDoutLoReg <= 32'bX;
-            memWriteReg <= 32'bX;
-            memReadReg <= 32'bX;
-            memSizeReg <= 32'bX;
-            memSignReg <= 32'bX;
-            regWriteReg <= 32'bX;
-            regAddr3SrcReg <= 32'bX;
-            regDinSrcReg <= 32'bX;
-            cp0WriteReg <= 32'bX;
-            hlWriteReg <= 32'bX;
-            hlDinHiSrcReg <= 32'bX;
-            hlDinLoSrcReg <= 32'bX;
-        end
-        else if (flush)
+        if (rst || flush)
         begin
             pc4Reg <= 0;
             instrReg <= 0;
@@ -93,12 +72,12 @@ module EX_MEM(
             regDout2Reg <= 0;
             mdDoutHiReg <= 0;
             mdDoutLoReg <= 0;
+            regAddr3Reg <= 0;
             memWriteReg <= 0;
             memReadReg <= 0;
             memSizeReg <= 0;
             memSignReg <= 0;
             regWriteReg <= 0;
-            regAddr3SrcReg <= 0;
             regDinSrcReg <= 0;
             cp0WriteReg <= 0;
             hlWriteReg <= 0;
@@ -114,12 +93,12 @@ module EX_MEM(
             regDout2Reg <= EX_regDout2;
             mdDoutHiReg <= EX_mdDoutHi;
             mdDoutLoReg <= EX_mdDoutLo;
+            regAddr3Reg <= EX_regAddr3;
             memWriteReg <= EX_memWrite;
             memReadReg <= EX_memRead;
             memSizeReg <= EX_memSize;
             memSignReg <= EX_memSign;
             regWriteReg <= EX_regWrite;
-            regAddr3SrcReg <= EX_regAddr3Src;
             regDinSrcReg <= EX_regDinSrc;
             cp0WriteReg <= EX_cp0Write;
             hlWriteReg <= EX_hlWrite;
@@ -135,12 +114,12 @@ module EX_MEM(
     assign MEM_regDout2 = regDout2Reg;
     assign MEM_mdDoutHi = mdDoutHiReg;
     assign MEM_mdDoutLo = mdDoutLoReg;
+    assign MEM_regAddr3 = regAddr3Reg;
     assign MEM_memWrite = memWriteReg;
     assign MEM_memRead = memReadReg;
     assign MEM_memSize = memSizeReg;
     assign MEM_memSign = memSignReg;
     assign MEM_regWrite = regWriteReg;
-    assign MEM_regAddr3Src = regAddr3SrcReg;
     assign MEM_regDinSrc = regDinSrcReg;
     assign MEM_cp0Write = cp0WriteReg;
     assign MEM_hlWrite = hlWriteReg;
