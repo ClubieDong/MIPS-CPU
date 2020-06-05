@@ -139,7 +139,7 @@ def Instantiation(file):
     lines.append(f"    {name} {name}")
     lines.append(f"    (")
     for i in paras:
-        lines.append(f"        .{i[2]:<{maxLen}} (XXXXX){i[3]:1} // {i[0]} {i[1]}")
+        lines.append(f"        .{i[2]:<{maxLen}}(XXXXX){i[3]:1} // {i[0]} {i[1]}")
     lines.append(f"    );")
     lines.append(f"")
     for i in range(len(lines)):

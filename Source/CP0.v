@@ -38,9 +38,9 @@ module CP0(
     reg    [31:0] regs[31:0];
     integer i;
     
-    wire          int;
-    wire   [31:0] cause;
-    wire   [31:0] status;
+    wire          int; // asserted when an interrupt is detected
+    wire   [31:0] cause; // cause register, for convenience
+    wire   [31:0] status; // status register, for convenience
 
     always @ (posedge clk)
     begin
@@ -82,7 +82,7 @@ module CP0(
                     regs[13] <= (regs[13] & 32'h7FFF_FF83) | {delaySlot, 31'h0000_0020};
                 else if (ctrlExcept == 2'b11) // unknown instruction
                     regs[13] <= (regs[13] & 32'h7FFF_FF83) | {delaySlot, 31'h0000_0028};
-                else if (imExcept) // unknown instruction
+                else if (imExcept)
                 begin
                     regs[13] <= (regs[13] & 32'h7FFF_FF83) | {delaySlot, 31'h0000_0010};
                     regs[8] <= WB_pc4 - 4;
@@ -101,9 +101,9 @@ module CP0(
         addrW == addrR && selR == selW && cp0Write ? din        : 
                                                      regs[addrR];
 
-    assign epc = addrW == 14 && selW == 0 && cp0Write ? din : regs[14];
     assign status = addrW == 12 && selW == 0 && cp0Write ? din : regs[12];
-    assign cause = addrW == 13 && selW == 0 && cp0Write ? din : regs[13];
+    assign cause  = addrW == 13 && selW == 0 && cp0Write ? din : regs[13];
+    assign epc    = addrW == 14 && selW == 0 && cp0Write ? din : regs[14];
 
     assign int = status[0] == 1 && status[1] == 0 && ((cause[9] && status[9]) || (cause[8] && status[8]));
     assign takeException = (imExcept || ctrlExcept != 2'b00 || aluExcept || dmExcept || int) && regs[12][1] == 0;
